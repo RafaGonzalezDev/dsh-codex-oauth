@@ -1,4 +1,18 @@
 export const styles = `
+/* Keep this additive footer contribution on its own row, including in the rail.
+   Scope wrapping to the notice's immediate slot container, never shell class names. */
+div:has(> .chatgpt-plan-sidebar) { flex-wrap: wrap; }
+.chatgpt-plan-sidebar { flex: 1 0 100%; min-width: 0; box-sizing: border-box; padding: 10px 12px; color: var(--dsw-alias-label-secondary); font-size: 12px; line-height: 1.5; }
+.chatgpt-plan-sidebar p { margin: 0; }
+.chatgpt-plan-sidebar-label { color: var(--dsw-alias-label-primary); overflow-wrap: anywhere; }
+.chatgpt-plan-sidebar[data-reconnect="true"] .chatgpt-plan-sidebar-label { color: var(--dsw-alias-state-warn-primary); }
+.chatgpt-plan-sidebar a { color: var(--dsw-alias-label-secondary); text-decoration: underline; text-underline-offset: 3px; }
+.chatgpt-plan-sidebar a:hover { color: var(--dsw-alias-label-primary); }
+.chatgpt-plan-sidebar a:focus-visible { outline: 2px solid var(--dsw-alias-brand-primary); outline-offset: 3px; border-radius: 3px; }
+.chatgpt-plan-sidebar[data-wide="false"] { display: flex; justify-content: center; padding: 6px 0; }
+.chatgpt-plan-sidebar-compact { display: inline-flex; align-items: center; justify-content: center; width: 32px; min-height: 32px; border: 1px solid var(--dsw-alias-border-l1); border-radius: 8px; font-size: 10px; }
+.chatgpt-plan-sidebar[data-reconnect="true"] .chatgpt-plan-sidebar-compact { color: var(--dsw-alias-state-warn-primary); }
+
 .chatgpt-plan-panel { border: 1px solid var(--border-color, #7775); border-radius: 12px; padding: 20px; margin: 20px 0; color: inherit; font: inherit; }
 .chatgpt-plan-panel header { display: flex; justify-content: space-between; align-items: start; gap: 16px; }
 .chatgpt-plan-panel h3, .chatgpt-plan-panel h4 { margin: 0 0 8px; }

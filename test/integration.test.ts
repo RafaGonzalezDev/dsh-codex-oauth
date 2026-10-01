@@ -81,8 +81,101 @@ test('the Client is a native lazy-CJS factory and imports neither secrets nor No
   for (const forbidden of ['node:crypto', 'node:http', 'accessToken', 'refreshToken', 'auth.openai.com']) assert.equal(source.includes(forbidden), false);
 });
 
+test('the compiled Client shares sidebar and Models state across Host updates and disconnect', async () => {
+  let contribution: any; let reads = 0; let disconnects = 0;
+  let readFailure: 'throw' | 'result' | undefined;
+  const registrations = new Map<string, { options: any; component: Function }>();
+  const injectedSlots: string[] = [];
+  const hostListeners = new Map<string, () => void>();
+  let status = { state: 'connected', profile: 'test', models: [], preferredModelAvailable: false };
+  const source = await readFile(new URL('../packages/plugin/lib/client.js', import.meta.url), 'utf8');
+  runInNewContext(source, {
+    window: { location: { hostname: '127.0.0.1' }, __ModuleLoader__: { load: (value: unknown) => { contribution = value; } } },
+    document: { createElement: () => ({ dataset: {}, remove() {} }), head: { appendChild() {} } },
+  });
+  const client = contribution.factory(require); const ctx = new Context();
+  ctx.provide('remote'); ctx.set('remote', {
+    $mount: async () => () => {},
+    $on: (name: string, listener: () => void) => {
+      hostListeners.set(name, listener); return () => { hostListeners.delete(name); };
+    },
+    chatgptPlan: {
+      getStatus: async () => {
+        reads++;
+        if (readFailure === 'throw') throw new Error('Connection is not ready');
+        if (readFailure === 'result') return { ok: false, error: { message: 'Connection is not ready' } };
+        return { ok: true, value: status };
+      },
+      disconnect: async () => {
+        disconnects++; status = { ...status, state: 'disconnected' };
+        return { ok: true, value: { status } };
+      },
+    },
+  });
+  ctx.provide('remote.chatgptPlan'); ctx.set('remote.chatgptPlan', ctx.remote.chatgptPlan);
+  ctx.provide('slots'); ctx.set('slots', {
+    inject: (name: string, install: () => void) => { injectedSlots.push(name); install(); },
+    register: (options: any, component: Function) => {
+      const key = `${options.name}:${options.id}`;
+      assert.equal(registrations.has(key), false, `Duplicate registration: ${key}`);
+      registrations.set(key, { options, component });
+    },
+  });
+  const instance = ctx.plugin(client); await instance;
+  const subscriptions: (() => void)[] = [];
+  try {
+    await new Promise(resolve => setImmediate(resolve));
+    assert.deepEqual([...registrations.keys()].sort(), ['settings.models.footer:chatgpt-plan', 'sidebar.footer.action:chatgpt-plan']);
+    assert.deepEqual(injectedSlots.sort(), ['settings.models.footer', 'sidebar.footer.action']);
+    const panel = registrations.get('settings.models.footer:chatgpt-plan')!;
+    const sidebar = registrations.get('sidebar.footer.action:chatgpt-plan')!;
+    assert.equal(panel.options.order, 10); assert.equal(sidebar.options.order, 10);
+    assert.equal(typeof panel.component, 'function'); assert.equal(typeof sidebar.component, 'function');
+    assert.notEqual(panel.component, sidebar.component);
+    const panelProps = panel.options.inject(); const sidebarProps = sidebar.options.inject();
+    const observable = panelProps.hooks.connection;
+    assert.equal(sidebarProps.hooks.connection, observable);
+    assert.equal(observable.getSnapshot().status.state, 'connected');
+    let panelUpdates = 0; let sidebarUpdates = 0;
+    subscriptions.push(observable.subscribe(() => { panelUpdates++; }));
+    subscriptions.push(sidebarProps.hooks.connection.subscribe(() => { sidebarUpdates++; }));
+    await new Promise(resolve => setImmediate(resolve));
+    const update = hostListeners.get('llm/adapters-updated'); assert.ok(update);
+    for (const failure of ['throw', 'result'] as const) {
+      readFailure = failure; update();
+      await new Promise(resolve => setImmediate(resolve));
+      assert.equal(observable.getSnapshot().status, undefined, `Clear stale connected state after ${failure}`);
+      assert.equal(sidebarProps.hooks.connection.getSnapshot().status, undefined);
+      assert.equal(typeof observable.getSnapshot().message, 'string');
+      assert.equal(sidebar.component({ wide: true, useConnection: (select: Function) => select(observable.getSnapshot()) }), null);
+      readFailure = undefined; update();
+      await new Promise(resolve => setImmediate(resolve));
+      assert.equal(observable.getSnapshot().status.state, 'connected');
+      assert.equal(sidebarProps.hooks.connection.getSnapshot().status.state, 'connected');
+      assert.equal(observable.getSnapshot().message, undefined);
+    }
+    panelUpdates = 0; sidebarUpdates = 0;
+    status = { ...status, state: 'needs-reconnect' };
+    const previousReads = reads; update();
+    await new Promise(resolve => setImmediate(resolve));
+    assert.equal(reads, previousReads + 1);
+    assert.equal(observable.getSnapshot().status.state, 'needs-reconnect');
+    assert.equal(sidebarProps.hooks.connection.getSnapshot(), observable.getSnapshot());
+    assert.equal(panelUpdates, 1); assert.equal(sidebarUpdates, 1);
+    panelProps.disconnect();
+    await new Promise(resolve => setImmediate(resolve));
+    assert.equal(disconnects, 1);
+    assert.equal(observable.getSnapshot().status.state, 'disconnected');
+    assert.equal(sidebarProps.hooks.connection.getSnapshot().status.state, 'disconnected');
+    assert.equal(observable.getSnapshot().busy, false);
+    assert.ok(panelUpdates > 1); assert.equal(sidebarUpdates, panelUpdates);
+  } finally { for (const unsubscribe of subscriptions) unsubscribe(); await instance.dispose(); }
+  assert.equal(hostListeners.size, 0);
+});
+
 test('the compiled Client recovers when the panel mounts after connection startup', async () => {
-  let contribution: any; let registrationOptions: any; let reads = 0;
+  let contribution: any; let reads = 0;
+  const registrations = new Map<string, any>();
   const source = await readFile(new URL('../packages/plugin/lib/client.js', import.meta.url), 'utf8');
   runInNewContext(source, {
     window: { location: { hostname: '127.0.0.1' }, __ModuleLoader__: { load: (value: unknown) => { contribution = value; } } },
@@ -99,12 +192,13 @@ test('the compiled Client recovers when the panel mounts after connection startu
   ctx.provide('remote.chatgptPlan'); ctx.set('remote.chatgptPlan', ctx.remote.chatgptPlan);
   ctx.provide('slots'); ctx.set('slots', {
     inject: (_name: string, install: () => void) => install(),
-    register: (options: unknown) => { registrationOptions = options; },
+    register: (options: any) => { registrations.set(`${options.name}:${options.id}`, options); },
   });
   const instance = ctx.plugin(client); await instance;
   try {
     await new Promise(resolve => setImmediate(resolve));
-    const observable = registrationOptions.inject().hooks.connection;
+    const observable = registrations.get('settings.models.footer:chatgpt-plan').inject().hooks.connection;
+    assert.equal(registrations.get('sidebar.footer.action:chatgpt-plan').inject().hooks.connection, observable);
     assert.equal(observable.getSnapshot().status, undefined);
     const unsubscribe = observable.subscribe(() => {});
     await new Promise(resolve => setImmediate(resolve));

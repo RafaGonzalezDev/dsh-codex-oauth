@@ -4,6 +4,7 @@ import type {} from '@deepseek-ai/dsh-client-ui-renderer/client';
 import type {} from '@deepseek-ai/dsh-client-connection/client';
 import { TYPERT_REMOTE } from 'dsh-chatgpt-plan/remote';
 import { ConnectionPanel, type PanelInjected, type PanelState } from './Panel.tsx';
+import { ChatGPTSidebarNotice } from './SidebarNotice.tsx';
 import { styles } from './styles.ts';
 import { en } from './locales.ts';
 
@@ -33,6 +34,10 @@ function applyPanel(ctx: Context): void {
       return () => { listeners.delete(listener); };
     },
   };
+  const readFailed = () => {
+    const { status: _status, ...retained } = snapshot;
+    publish({ ...retained, message: en.failed });
+  };
   const read = async () => {
     const version = ++refreshVersion;
     try {
@@ -42,8 +47,8 @@ function applyPanel(ctx: Context): void {
         const { message, ...retained } = snapshot;
         publish({ ...retained, status: result.value, ...(message && message !== en.failed ? { message } : {}) });
       }
-      else publish({ ...snapshot, message: en.failed });
-    } catch { if (version === refreshVersion) publish({ ...snapshot, message: en.failed }); }
+      else readFailed();
+    } catch { if (version === refreshVersion) readFailed(); }
   };
   const connect = async (changeAccount: boolean) => {
     if (snapshot.busy) return;
@@ -92,6 +97,10 @@ function applyPanel(ctx: Context): void {
     disconnect: () => { void disconnect(); }, refresh: () => { void refresh(); },
   });
   ctx.slots.inject('settings.models.footer', () => ctx.slots.register({ name: 'settings.models.footer', id: 'chatgpt-plan', order: 10, inject: injected }, ConnectionPanel));
+  ctx.slots.inject('sidebar.footer.action', () => ctx.slots.register({
+    name: 'sidebar.footer.action', id: 'chatgpt-plan', order: 10,
+    inject: () => ({ hooks: { connection } }),
+  }, ChatGPTSidebarNotice));
   ctx.effect(() => {
     const style = document.createElement('style'); style.dataset.plugin = 'dsh-chatgpt-plan'; style.textContent = styles;
     document.head.appendChild(style); return () => style.remove();

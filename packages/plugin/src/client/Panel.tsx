@@ -2,6 +2,7 @@ import type { HostObservable, InjectFace, PropsRuntime } from '@deepseek-ai/dsh-
 import type {} from '@deepseek-ai/dsh-client-ui-settings-models/client';
 import type { ConnectionStatus } from '../contracts.ts';
 import { en } from './locales.ts';
+import { CHATGPT_USAGE_URL } from './usage.ts';
 
 export interface PanelState {
   status?: ConnectionStatus;
@@ -52,6 +53,6 @@ export function ConnectionPanel(props: PanelProps) {
       </li>)}</ul>
       <p>{en.selectHint}</p>
     </>}
-    <footer><p>{en.quotaHint}</p><a href="https://chatgpt.com/settings/usage" target="_blank" rel="noopener noreferrer">{en.usage}</a></footer>
+    <footer><p>{en.quotaHint}</p><a href={CHATGPT_USAGE_URL} target="_blank" rel="noopener noreferrer">{en.usage}</a></footer>
   </section>;
 }

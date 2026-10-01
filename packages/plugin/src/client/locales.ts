@@ -1,5 +1,7 @@
 export const en = {
   title: 'ChatGPT Plan',
+  sidebarConnected: 'ChatGPT plan connected', sidebarUsage: 'View usage',
+  sidebarReconnect: 'ChatGPT reconnection required', sidebarReconnectHint: 'Reconnect in Models',
   subtitle: 'Use your ChatGPT plan in DeepSeek Harness.',
   connect: 'Continue with ChatGPT', reconnect: 'Reconnect', changeAccount: 'Change account',
   disconnect: 'Disconnect', cancel: 'Cancel sign-in', refresh: 'Refresh models',

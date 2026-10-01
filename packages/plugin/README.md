@@ -11,20 +11,20 @@ Windows portability is expected: the plugin has no macOS-only runtime dependency
 Use the CLI bundled with the installed application when managing Desktop:
 
 ```sh
-"/Applications/DeepSeek Harness.app/Contents/Resources/runtime/cli/bin/dsh" plugin --profile desktop add /absolute/path/dsh-chatgpt-plan-0.1.2.tgz
+"/Applications/DeepSeek Harness.app/Contents/Resources/runtime/cli/bin/dsh" plugin --profile desktop add /absolute/path/dsh-chatgpt-plan-0.1.3.tgz
 ```
 
 For a local Web profile, select that profile explicitly:
 
 ```sh
-dsh plugin --profile web add /absolute/path/dsh-chatgpt-plan-0.1.2.tgz
+dsh plugin --profile web add /absolute/path/dsh-chatgpt-plan-0.1.3.tgz
 ```
 
 For a new custom Web profile, initialize it from the shipped Web template before adding the plugin:
 
 ```sh
 dsh --profile my-web --from-default-profile web --dump-config
-dsh plugin --profile my-web add /absolute/path/dsh-chatgpt-plan-0.1.2.tgz
+dsh plugin --profile my-web add /absolute/path/dsh-chatgpt-plan-0.1.3.tgz
 dsh --profile my-web --no-open --port 41873
 ```
 
@@ -39,6 +39,12 @@ Only the visible entries returned by the official `/v1/models` account catalog a
 Use **Cancel** to withdraw browser authorization, **Refresh models** to reload the catalog, and **Disconnect** to revoke the remote grant and erase local tokens. To change accounts, disconnect and choose **Change account**, which starts a new dynamic registration. A failed remote revocation is shown explicitly; local sign-out still removes all tokens.
 
 The Web browser and Harness host must run on the same machine because the OAuth callback listens on `127.0.0.1`. A remotely hosted Web deployment is outside the initial supported scope.
+
+## Sidebar connection notice
+
+A connected account adds **ChatGPT plan connected** and **View usage** above the existing DeepSeek account launcher. The link opens [ChatGPT Settings → Usage](https://chatgpt.com/settings/usage) in a new tab. The collapsed sidebar uses a compact **GPT** link with an accessible label.
+
+The notice shares the Models panel's connection state. It is hidden while disconnected or loading; a session requiring renewed authorization instead shows **ChatGPT reconnection required** and **Reconnect in Models**. It does not indicate that the currently selected model uses ChatGPT, display estimated remaining quota, or query internal usage endpoints. The detailed usage notice remains in Models.
 
 ## Scope and validation
 
