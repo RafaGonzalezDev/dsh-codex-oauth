@@ -6,7 +6,7 @@ The Host owns OAuth and native credentials. **Pi is the single model metadata so
 
 ## Experimental Pi catalog branch
 
-This change is developed as **`0.1.5-pi-catalog.1`** on `feature/pi-model-catalog` in the separate `dsh-codex-oauth-pi-catalog` worktree. The stable `dsh-codex-oauth` checkout and `main` remain unchanged. It does not patch the installed DSH ASAR, core or a Pi/WSL installation.
+This change is developed as **`0.1.5-pi-catalog.2`** on `feature/pi-model-catalog` in the `dsh-codex-oauth` checkout. `main` remains unchanged, and only that branch is pushed. It does not patch the installed DSH ASAR, core or a Pi/WSL installation.
 
 The catalog comes from [Pi's openai-codex chat catalog](<https://pi.dev/api/models/providers/openai-codex?types=chat>). A background check runs on each plugin activation, with a 4-second deadline, a 2 MiB response limit and at most 1,000 records. A profile-local ETag/JSON cache and a bundled snapshot generated from the same service keep the last valid metadata available offline. A valid update replaces the whole list, including an empty list. Discovery never calls OpenAI `/v1/models` with OAuth.
 

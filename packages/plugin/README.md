@@ -2,7 +2,7 @@
 
 Connect a ChatGPT account to DeepSeek Harness through OpenAI's **Sign in with ChatGPT** plan-sharing preview. Inference uses the official Responses API directly at `api.openai.com` and the granted ChatGPT plan usage permission. This provider has no API-key configuration or alternative API-billing fallback.
 
-**Experimental version: `0.1.5-pi-catalog.1`.** Pi supplies model metadata only; it does not handle OAuth, credentials, inference or billing. See [models and restrictions](<docs/models.md>).
+**Experimental version: `0.1.5-pi-catalog.2`.** Pi supplies model metadata only; it does not handle OAuth, credentials, inference or billing. See [models and restrictions](<docs/models.md>).
 
 Declared Harness compatibility: **`>=0.2.0-rc.2 <0.3.0-0`**. Historical tested baseline: **0.2.0-rc.2**, Node **24**, macOS Desktop and a local Web host with plugin **0.1.2**. This does not validate the experimental catalog release. The package is independent of DeepSeek, OpenAI and Pi. License: MIT.
 
@@ -17,7 +17,7 @@ Build and test the experimental package first, and install the **same tarball** 
 Use the global CLI bundled with the installed Windows application, not a checkout launcher:
 
 ```powershell
-& "$env:LOCALAPPDATA\Programs\DeepSeek Harness\resources\runtime\cli\bin\dsh.cmd" plugin --profile desktop add "C:\path\to\dsh-chatgpt-plan-0.1.5-pi-catalog.1.tgz"
+& "$env:LOCALAPPDATA\Programs\DeepSeek Harness\resources\runtime\cli\bin\dsh.cmd" plugin --profile desktop add "C:\path\to\dsh-chatgpt-plan-0.1.5-pi-catalog.2.tgz"
 ```
 
 The experimental rollout starts from `0.1.4` in the real `~/.dsh/profiles/desktop` profile. After installation, use the application's **restartHost** action and refresh the existing UI at `http://127.0.0.1:19387`. Do not start a replacement server. The generated Remote registry is discovered at startup; package changes are not guaranteed to hot-reload. This procedure does not modify ASAR/core files or a Pi/WSL installation.
@@ -29,20 +29,20 @@ Windows callback, UI and live inference validation for this experimental release
 Use the CLI bundled with the installed application when managing macOS Desktop:
 
 ```sh
-"/Applications/DeepSeek Harness.app/Contents/Resources/runtime/cli/bin/dsh" plugin --profile desktop add /absolute/path/dsh-chatgpt-plan-0.1.5-pi-catalog.1.tgz
+"/Applications/DeepSeek Harness.app/Contents/Resources/runtime/cli/bin/dsh" plugin --profile desktop add /absolute/path/dsh-chatgpt-plan-0.1.5-pi-catalog.2.tgz
 ```
 
 For a local Web profile on Linux/macOS, select that profile explicitly:
 
 ```sh
-dsh plugin --profile web add /absolute/path/dsh-chatgpt-plan-0.1.5-pi-catalog.1.tgz
+dsh plugin --profile web add /absolute/path/dsh-chatgpt-plan-0.1.5-pi-catalog.2.tgz
 ```
 
 For a **new, separate** custom Web profile, initialize it from the shipped Web template before adding the plugin:
 
 ```sh
 dsh --profile my-web --from-default-profile web --dump-config
-dsh plugin --profile my-web add /absolute/path/dsh-chatgpt-plan-0.1.5-pi-catalog.1.tgz
+dsh plugin --profile my-web add /absolute/path/dsh-chatgpt-plan-0.1.5-pi-catalog.2.tgz
 dsh --profile my-web --no-open --port 41873
 ```
 

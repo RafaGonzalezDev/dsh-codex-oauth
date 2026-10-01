@@ -2,7 +2,7 @@
 
 ## Catalog source and account access
 
-The experimental `0.1.5-pi-catalog.1` provider uses [Pi's openai-codex chat catalog](<https://pi.dev/api/models/providers/openai-codex?types=chat>) as its **only model metadata source**. It never calls OAuth `GET /v1/models` for discovery. `openai-codex` identifies the Pi catalog namespace; it does not select Codex inference transport, credentials or OAuth behavior.
+The experimental `0.1.5-pi-catalog.2` provider uses [Pi's openai-codex chat catalog](<https://pi.dev/api/models/providers/openai-codex?types=chat>) as its **only model metadata source**. It never calls OAuth `GET /v1/models` for discovery. `openai-codex` identifies the Pi catalog namespace; it does not select Codex inference transport, credentials or OAuth behavior.
 
 The exact Pi `name` is the display label, including its original capitalization: **GPT-6.1 Sol**. The exact `id`, **`gpt-6.1-sol`**, is the technical identifier sent in requests. There are no aliases that rewrite a request, merged supplemental lists or automatic substitutions.
 

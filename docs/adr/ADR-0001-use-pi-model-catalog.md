@@ -9,7 +9,7 @@ The ChatGPT Plan plugin used an OAuth account `/v1/models` list with a small rev
 
 We need current human-readable names and exact request identifiers without a hand-maintained model list, a Pi runtime dependency or an update of the whole plugin for each new model. The plugin must retain direct OAuth Responses requests to `api.openai.com`, existing scopes/native credentials, native Harness model/tool interfaces and explicit provider errors. It must not adopt Codex transport, imported pricing, API keys or automatic model substitution.
 
-The experimental implementation is isolated as `0.1.5-pi-catalog.1` on `feature/pi-model-catalog` in a separate worktree. The stable checkout, DSH ASAR/core and Pi/WSL installation are outside the change.
+The experimental implementation is isolated as `0.1.5-pi-catalog.2` on `feature/pi-model-catalog`. The `main` branch, DSH ASAR/core and Pi/WSL installation are outside the change.
 
 ## Alternatives considered
 

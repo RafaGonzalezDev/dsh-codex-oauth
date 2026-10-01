@@ -22,7 +22,7 @@ Start with the profile name, installed Harness/plugin versions, public status/er
 | Symptom/code | Action |
 | --- | --- |
 | Panel absent | Confirm the bundle is enabled in this profile. Restart the Host and reload the UI so the generated Remote contribution is discovered. |
-| Windows experimental package still shows old UI | Install the tested `0.1.5-pi-catalog.1` tarball through the global Windows bundled CLI into `desktop`, use **restartHost**, then refresh the existing `http://127.0.0.1:19387` UI. Do not start another server or patch ASAR/core files. See the [installation guide](<../README.md>). |
+| Windows experimental package still shows old UI | Install the tested `0.1.5-pi-catalog.2` tarball through the global Windows bundled CLI into `desktop`, use **restartHost**, then refresh the existing `http://127.0.0.1:19387` UI. Do not start another server or patch ASAR/core files. See the [installation guide](<../README.md>). |
 | Custom profile stays idle without a Web URL | Initialize a new profile with `dsh --profile my-web --from-default-profile web --dump-config` before installing the plugin. A profile first created by `plugin add` contains the base bundle but lacks `@deepseek-ai/dsh-web-app`. The template option applies only to new profiles. |
 | Rebuilt development tarball still loads old code | The profile package manager may cache an unchanged version at the same local path. Use a distinct experimental version and retain the exact tested artifact/digest; then restart the Host and reload the UI. |
 | Rollback needed | Reinstall the retained known-good `0.1.4` tarball through the same CLI/profile, restartHost and refresh the same URL. Preserve OAuth credentials; do not copy or patch core packages. |

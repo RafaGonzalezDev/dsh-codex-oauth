@@ -4,7 +4,7 @@ This repository was initialized from the clean dsh-chatgpt-plan 0.1.2 source arc
 
 ## Experimental worktree
 
-Develop **`0.1.5-pi-catalog.1`** on `feature/pi-model-catalog` in `C:\Users\rafat\Desktop\Code\dsh-codex-oauth-pi-catalog`. Keep the stable `dsh-codex-oauth` checkout and `main` unchanged. No installed DSH ASAR/core or Pi/WSL files are part of this change. Do not create commits unless requested.
+Develop **`0.1.5-pi-catalog.2`** on `feature/pi-model-catalog` in `C:\Users\rafat\Desktop\Code\dsh-codex-oauth`. Keep `main` unchanged and push only that branch. No installed DSH ASAR/core or Pi/WSL files are part of this change.
 
 Pi is the single model metadata source. OAuth, native credentials, direct OpenAI Responses inference and native Harness interfaces remain separate. See [ADR-0001](<adr/ADR-0001-use-pi-model-catalog.md>) for the decision and rejected alternatives.
 
@@ -51,7 +51,7 @@ The Host bounds each catalog fetch to 4 seconds, 2 MiB and 1,000 records. Runtim
 The initial target is the real `~/.dsh/profiles/desktop` profile with plugin `0.1.4`. After complete checks and packaging, install the **same experimental tarball** through the Windows global bundled CLI:
 
 ```powershell
-& "$env:LOCALAPPDATA\Programs\DeepSeek Harness\resources\runtime\cli\bin\dsh.cmd" plugin --profile desktop add "C:\Users\rafat\Desktop\Code\dsh-codex-oauth-pi-catalog\dsh-chatgpt-plan-0.1.5-pi-catalog.1.tgz"
+& "$env:LOCALAPPDATA\Programs\DeepSeek Harness\resources\runtime\cli\bin\dsh.cmd" plugin --profile desktop add "C:\Users\rafat\Desktop\Code\dsh-codex-oauth\dsh-chatgpt-plan-0.1.5-pi-catalog.2.tgz"
 ```
 
 Use **restartHost**, then refresh the existing `http://127.0.0.1:19387` UI. Do not launch a replacement server, promise HMR or patch the installed application. Check the source badge, exact human names/IDs, empty/fallback feedback and native selector; then obtain distinct live-inference evidence if a real request is authorized.
@@ -59,6 +59,22 @@ Use **restartHost**, then refresh the existing `http://127.0.0.1:19387` UI. Do n
 For rollback, reinstall the retained `0.1.4` tarball through the same CLI and profile, then restartHost and refresh the same URL. Preserve OAuth credentials and both artifacts/digests. A catalog rollback is not a reason to delete the native credential store. The upgrade ignores legacy model lists stored alongside an existing grant while preserving the grant itself.
 
 Keep the [build-time validation record](<../packages/plugin/docs/validation.md>) separate from the post-build receipt below. User-confirmed Pi access on a Pro 5x account is external evidence, not a successful request from this plugin.
+
+### Deployment receipt: 0.1.5-pi-catalog.2
+
+Recorded on 2026-10-02 (Europe/Madrid). This release only changes the order in which the Models panel and the native composer selector present the catalog; it does not change discovery, credentials, transport or inference.
+
+| Check | Evidence |
+| --- | --- |
+| Source | `feature/pi-model-catalog` at `a635493a`, on top of the `512af4a` catalog commit. `main` remains `91d627f6`; no ASAR/core or Pi/WSL change. |
+| Change | The exposed selection view is reversed so the newest generation is offered first. The catalog, the profile cache and the bundled snapshot keep Pi's exact source order; nothing is renamed, added, removed, aliased or substituted. |
+| Build and regression tests | Windows Node **24.21.0**; `npm run check` **139/139 passed**, no failures, cancellations or skips; types correct. |
+| Candidate artifact | `dsh-chatgpt-plan-0.1.5-pi-catalog.2.tgz`, **239538 bytes**, **38 files**; SHA-256 `0b2aa12ec7e6ea05523da4153ad61333515d63ae66e8d485ad02de61749cf51b`; npm shasum `709f027a6d143726e1c807d04de0649a964b30bd`. |
+| Rollback | `0.1.4` tarball retained, SHA-256 `2485f414eae8d5ac565db6b23f1cc910572c168db1301d61fe8a1e02faee8131`; the `0.1.5-pi-catalog.1` artifact is also kept. |
+| Installation metadata backup | `~/.dsh/backups/chatgpt-plan-before-pi-catalog-2-20261002-0059`: only `package.json`, `pnpm-lock.yaml`, `pnpm-workspace.yaml`. No credential backup/export. |
+| Desktop installation | Global bundled CLI command exited **0**. The real desktop profile now resolves `0.1.5-pi-catalog.2`. **38/38 installed files** compared byte-for-byte by SHA-256 with the archive. |
+| Installed selection order | **Verified with the installed artifact:** the native probe reported the session `connected`, **9 models**, same revision `63334bb2…`, no catalog warning, and the exact order `gpt-6.1-sol`, `gpt-6-sol`, `gpt-6-luna`, `gpt-6-astra`, `gpt-5.6-terra`, `gpt-5.6-sol`, `gpt-5.6-luna`, `gpt-5.5`, `gpt-5.3-codex-spark`. Zero inference and zero OAuth requests were made. |
+| Running Desktop Host / GUI | **Pending:** the already-running Host still executes the previously installed `0.1.5-pi-catalog.1`, because installation changes the profile on disk only. A restart is required before the selector and panel show the new order. No replacement server or authentication bypass is used. |
 
 ### Deployment receipt: 0.1.5-pi-catalog.1
 

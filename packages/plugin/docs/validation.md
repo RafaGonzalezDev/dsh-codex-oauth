@@ -1,21 +1,22 @@
 # Validation
 
-## Experimental Pi catalog release: 0.1.5-pi-catalog.1
+## Experimental Pi catalog release: 0.1.5-pi-catalog.2
 
-Scope: `feature/pi-model-catalog`, isolated `dsh-codex-oauth-pi-catalog` worktree, Windows Node 24.21.0. Recorded on 2026-10-01. The stable checkout and installed DSH core are not changed by source implementation. Historical results below are not evidence that the new catalog release has passed live validation.
+Scope: `feature/pi-model-catalog`, Windows Node 24.21.0. Catalog, cache and snapshot work recorded on 2026-10-01; the presentation-order change and its revalidation recorded on 2026-10-02 (Europe/Madrid). `main` and the installed DSH core are not changed by source implementation. Historical results below are not evidence that the catalog release has passed live validation.
 
 This is the **build-time record**. Post-build artifact hashes and Desktop/live results belong in the repository's deployment receipt, so the validated tarball does not need to be rebuilt to record its own deployment.
 
 | Check | Recorded result |
 | --- | --- |
 | Compiled Client, pure React Models panel and existing sidebar | **Passed:** 31 focused tests (10 compiled Client races, 15 panel and 6 sidebar), also included in the full run. Covers independent catalog/auth state, stale refresh/status results, exact names/IDs, optional metadata, source/revision/dates, empty/fallback feedback, native update events and unchanged quota/sidebar semantics. No DOM or live UI claim. |
-| Full Host/Client build and complete automated suite | **Passed:** `npm run check`; **136 tests, 136 passed, 0 failed, 0 cancelled, 0 skipped**. Host, generated RPC and Client rebuilt before the run. |
+| Full Host/Client build and complete automated suite | **Passed:** `npm run check`; **139 tests, 139 passed, 0 failed, 0 cancelled, 0 skipped**. Host, generated RPC and Client rebuilt before the run. |
+| Selection order in panel and native selector | **Passed:** the exposed selection view lists the newest generation first while the catalog, its cache and the bundled snapshot keep Pi's exact source order. Panel, adapter and session tests cover the order and confirm that the projection renames, adds, removes, aliases and substitutes nothing. |
 | Static types | **Passed:** `npm run typecheck`; additional strict standalone checks cover catalog, session and the new session regressions. |
 | Pi service fetch and generated snapshot | **Passed:** `npm run catalog:snapshot -- --check`; the real public Pi endpoint matches the bundled **9 models**, including exact `gpt-6.1-sol` / `GPT-6.1 Sol`. This is metadata evidence, not inference. |
 | Catalog/cache and session behavior | **Passed in the complete suite:** 200/304, ETag, timeout/size bounds, corrupt/malformed input, atomic-write failure, replacement and valid empty lists, single-flight, cancellation/dispose, cache isolation, legacy model payloads without grant writes, stale credential reads and delayed commit races. |
 | Native credential privacy and concurrency | **Passed with fictional credentials:** concurrent stores rotate once and reload after logout. POSIX retains the `0600` assertion; Windows verifies the file DACL inherited from a private synthetic fixture directory. No real profile ACL, credential file or machine TEMP ACL is changed or audited by this test. |
 | Model-specific provider rejection | **Passed:** HTTP 400/401/403/404 with `model_not_found` remains `MODEL_UNAVAILABLE`, retains the grant and exact selection, and never substitutes another model. |
-| Package artifact | **Post-build check:** pack `0.1.5-pi-catalog.1`, retain the exact tarball/digest and prior `0.1.4` rollback artifact in the deployment receipt. |
+| Package artifact | **Post-build check:** pack `0.1.5-pi-catalog.2`, retain the exact tarball/digest and the prior `0.1.4` rollback artifact in the deployment receipt. |
 | Windows desktop profile installation | **Pending at build time:** use the global Windows bundled CLI and real `~/.dsh/profiles/desktop` profile, initially at `0.1.4`. No ASAR/core or Pi/WSL patch. |
 | Host and visible UI | **Pending at build time:** restartHost, then refresh the existing `http://127.0.0.1:19387` UI. Verify actual loaded metadata, exact human names/IDs and native selector. Do not replace the server or infer HMR. |
 | Real account access through Pi | **User-confirmed externally:** Pro 5x account. This confirms the user's Pi result, not this plugin's direct Responses request. |
