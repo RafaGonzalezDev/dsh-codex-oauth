@@ -1,0 +1,14 @@
+node_modules/
+lib/
+*.tgz
+.test-home/
+.credentials.yaml
+.env
+coverage/
+
+packages/.build/
+*.tsbuildinfo
+
+.DS_Store
+.env.*
+!.env.example
