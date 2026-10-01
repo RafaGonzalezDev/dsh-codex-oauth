@@ -1,0 +1,16 @@
+export const en = {
+  title: 'ChatGPT Plan',
+  subtitle: 'Use your ChatGPT plan in DeepSeek Harness.',
+  connect: 'Continue with ChatGPT', reconnect: 'Reconnect', changeAccount: 'Change account',
+  disconnect: 'Disconnect', cancel: 'Cancel sign-in', refresh: 'Refresh models',
+  openSignIn: 'Open sign-in page', usage: 'ChatGPT Settings → Usage',
+  loading: 'Loading connection status…', disconnected: 'Disconnected', connected: 'Connected',
+  authorizing: 'Waiting for browser sign-in…', needsReconnect: 'Reconnect required',
+  localOnly: 'Sign-in is available only from a local browser on the Harness host.',
+  unavailable: 'GPT-6.1 Sol is not listed in the official account catalog. No model has been substituted.',
+  emptyCatalog: 'No selectable models are available. Refresh the model catalog.',
+  selectHint: 'Select ChatGPT Plan and a model from the native composer selector.',
+  quotaHint: 'Usage is charged to your ChatGPT plan and any credits you have enabled for this app in ChatGPT settings.',
+  failed: 'The plugin could not contact the Host. Check the connection and restart the Harness after installation.',
+  models: 'Account models', unsupported: 'Capabilities unavailable',
+} as const;
