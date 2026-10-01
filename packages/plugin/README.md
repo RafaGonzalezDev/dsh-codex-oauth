@@ -22,7 +22,9 @@ Use the global CLI bundled with the installed Windows application, not a checkou
 
 The experimental rollout starts from `0.1.4` in the real `~/.dsh/profiles/desktop` profile. After installation, use the application's **restartHost** action and refresh the existing UI at `http://127.0.0.1:19387`. Do not start a replacement server. The generated Remote registry is discovered at startup; package changes are not guaranteed to hot-reload. This procedure does not modify ASAR/core files or a Pi/WSL installation.
 
-Windows callback, UI and live inference validation for this experimental release remain pending until recorded in [validation evidence](<docs/validation.md>).
+**Validated platform coverage for `0.1.5-pi-catalog.2` is Windows Desktop only.** Installation through the bundled CLI, native loading, the remote and cache catalog path, the selection order and a live `gpt-6.1-sol` request are recorded in the [validation evidence](<docs/validation.md>) and the deployment receipt.
+
+**macOS Desktop and Linux/Web have not been executed for this release.** The `0.1.2` baseline was validated on macOS, and the package is platform-neutral — prebuilt JavaScript, pure-JavaScript dependencies, no `os`/`cpu` restriction, no native module and no platform-specific branch — but that is a static property, not a runtime result. Validate installation, sign-in, the catalog and inference on the target platform before relying on them. Rollback is the retained `0.1.4` tarball.
 
 ### macOS Desktop and local Web
 
