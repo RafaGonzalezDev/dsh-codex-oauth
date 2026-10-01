@@ -2,7 +2,9 @@
 
 Connect a ChatGPT account to DeepSeek Harness through OpenAI's **Sign in with ChatGPT** plan-sharing preview. Inference uses the official Responses API and the granted ChatGPT plan usage permission. This provider has no API-key configuration or alternative API-billing fallback.
 
-Supported target: DeepSeek Harness **0.2.0-rc.2**, Node **24**, macOS Desktop and a local Web host. The package is independent of DeepSeek and OpenAI. License: MIT.
+Declared Harness compatibility: **`>=0.2.0-rc.2 <0.3.0-0`**. Tested baseline: **0.2.0-rc.2**, Node **24**, macOS Desktop and a local Web host. The package is independent of DeepSeek and OpenAI. License: MIT.
+
+All DSH runtime peer dependencies and the informational `engines.dsh` field use this bounded range. DSH includes prereleases when checking peers, so the `-0` upper bound deliberately excludes every `0.3.0` prerelease as well as the stable release. Development dependencies remain pinned to `0.2.0-rc.2` for reproducible builds. This range permits loading later `0.2` releases; it does not certify untested API or UI compatibility. Validate each new Harness release before relying on it, especially release candidates. No version exemptions are required or installed.
 
 Windows portability is expected: the plugin has no macOS-only runtime dependency, uses native Harness credential/attachment services and binds OAuth callbacks to `127.0.0.1`. The same npm tarball is intended for Windows, but Windows installation, browser callback and Desktop smoke tests have not been performed. Initial acceptance remains macOS Desktop and local Web.
 
@@ -11,20 +13,20 @@ Windows portability is expected: the plugin has no macOS-only runtime dependency
 Use the CLI bundled with the installed application when managing Desktop:
 
 ```sh
-"/Applications/DeepSeek Harness.app/Contents/Resources/runtime/cli/bin/dsh" plugin --profile desktop add /absolute/path/dsh-chatgpt-plan-0.1.3.tgz
+"/Applications/DeepSeek Harness.app/Contents/Resources/runtime/cli/bin/dsh" plugin --profile desktop add /absolute/path/dsh-chatgpt-plan-0.1.4.tgz
 ```
 
 For a local Web profile, select that profile explicitly:
 
 ```sh
-dsh plugin --profile web add /absolute/path/dsh-chatgpt-plan-0.1.3.tgz
+dsh plugin --profile web add /absolute/path/dsh-chatgpt-plan-0.1.4.tgz
 ```
 
 For a new custom Web profile, initialize it from the shipped Web template before adding the plugin:
 
 ```sh
 dsh --profile my-web --from-default-profile web --dump-config
-dsh plugin --profile my-web add /absolute/path/dsh-chatgpt-plan-0.1.3.tgz
+dsh plugin --profile my-web add /absolute/path/dsh-chatgpt-plan-0.1.4.tgz
 dsh --profile my-web --no-open --port 41873
 ```
 
