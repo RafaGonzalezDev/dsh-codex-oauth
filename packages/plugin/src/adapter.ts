@@ -25,9 +25,8 @@ export class ChatGPTPlanAdapter extends LlmAdapter {
   override async resolveModel(_provider: string, model: string, signal?: AbortSignal): Promise<LlmResolvedModelInfo> {
     try {
       throwIfAborted(signal);
-      let found = this.manager.models().find(candidate => candidate.id === model);
-      if (!found) found = (await this.manager.refreshModels(signal)).find(candidate => candidate.id === model);
-      if (!found) throw new PlanError('MODEL_UNAVAILABLE', 'This model is not available in the signed-in account catalog. Refresh models and select an available model.');
+      const found = this.manager.models().find(candidate => candidate.id === model);
+      if (!found) throw new PlanError('MODEL_UNAVAILABLE', 'This model is not selectable from the current Pi catalog for this profile. Connect the profile if needed, update models, and select a listed model. No model has been substituted.');
       return resolvedModel(found);
     } catch (error) { const failure = safeError(error); throw new LlmError(failure.message, failure.code); }
   }

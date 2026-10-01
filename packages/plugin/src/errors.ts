@@ -47,6 +47,7 @@ export function classifyProviderError(status: number | undefined, code: string, 
     return failure('INSUFFICIENT_SCOPE', 'ChatGPT plan usage permission was not accepted. Reconnect and check the client and grant configuration.');
   }
   if (/context.*(exceed|overflow|limit)/.test(code)) return failure('CONTEXT_WINDOW_EXCEEDED', 'The request exceeds the model context window.');
+  if (['model_not_found', 'model_not_available', 'model_not_supported', 'unsupported_model'].includes(code)) return failure('MODEL_UNAVAILABLE', 'OpenAI did not accept the selected model on this connection. Your sign-in and selection have been kept; no model has been substituted.');
   if (status === 401 || code === 'subscription_sharing_invalid_user') return failure('AUTH', 'The ChatGPT session was not accepted. Reconnect this profile.');
   if (code === 'subscription_sharing_route_not_supported') return failure('UNSUPPORTED_REQUEST', 'OpenAI does not support this request route. Update the plugin integration.');
   if (status === 403 || code === 'subscription_sharing_user_not_eligible') return failure('INELIGIBLE', 'ChatGPT plan usage is restricted for this account, workspace, model, or serving region.');

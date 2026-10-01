@@ -5,9 +5,9 @@ import type { ResponseStreamEvent } from 'openai/resources/responses/responses';
 import { RequestBuilder, wireToolName } from '../packages/plugin/src/request.ts';
 import { ResponseStreamTranslator } from '../packages/plugin/src/response-stream.ts';
 import { ChatGPTPlanAdapter } from '../packages/plugin/src/adapter.ts';
-import { parseCatalog, resolvedModel } from '../packages/plugin/src/models.ts';
+import { parsePiCatalog as parseCatalog, resolvedModel } from '../packages/plugin/src/models.ts';
 import { DEFAULT_IMAGE_POLICY } from '../packages/plugin/src/request.ts';
-import { fixture, registration, wireCatalog } from './helpers.ts';
+import { fixture, registration, piCatalog as wireCatalog } from './helpers.ts';
 
 const tools = [{ name: 'fs.read', description: 'Read a permitted file', parameters: { type: 'object', properties: { path: { type: 'string' } }, required: ['path'] } }, { name: 'fs.read!', description: 'Another tool', parameters: { type: 'object', properties: {} } }];
 const imagePort = { imageLimits: { maxImageBytes: 10_000 }, readImageRequest: async (ref: any) => ({ ...ref, data: new Uint8Array([1, 2, 3]) }) } as any;
@@ -21,13 +21,14 @@ async function chunks(stream: AsyncIterable<StreamChunk>) { const values: Stream
 function translator() { return new ResponseStreamTranslator(new Map(tools.map(tool => [wireToolName(tool.name), tool.name])), { kind: 'chatgpt-plan-v1', clientId: registration.clientId, model: model.id }); }
 function push(target: ResponseStreamTranslator, events: unknown[]) { return events.flatMap(event => target.push(event as ResponseStreamEvent)); }
 
-test('catalog preserves account order and visibility, without inventing unknown capabilities', () => {
-  const catalog = parseCatalog({ models: [{ slug: 'hidden', display_name: 'Hidden', visibility: 'hidden' }, { slug: 'verified-text', display_name: 'Text', visibility: 'list', input_modalities: ['text'] }, ...wireCatalog.models, { slug: 'unknown', display_name: 'Unknown', visibility: 'list' }] });
+test('catalog preserves Pi order and names without inventing unknown capabilities', () => {
+  const catalog = parseCatalog([{ id: 'verified-text', name: 'Text', provider: 'openai-codex', type: 'chat', input: ['text'], reasoning: false }, ...wireCatalog, { id: 'unknown', name: 'Unknown', provider: 'openai-codex', type: 'chat', input: [], reasoning: false }]);
   assert.deepEqual(catalog.map(value => value.id), ['verified-text', 'gpt-6.1-sol', 'unknown']);
+  assert.equal(catalog[1]!.name, 'GPT-6.1 Sol');
   assert.equal(catalog[2]!.available, false); assert.equal(catalog[0]!.contextWindow, undefined);
-  assert.throws(() => parseCatalog({ models: [...wireCatalog.models, ...wireCatalog.models] }), { code: 'INVALID_CATALOG' });
-  const mixed = parseCatalog({ models: [{ slug: 'multimodal', display_name: 'Mixed', visibility: 'list', input_modalities: ['text', 'image', 'audio', 'video'] }] });
-  assert.deepEqual(mixed[0]!.inputModalities, ['text', 'image']); assert.match(mixed[0]!.warning!, /native file/);
+  assert.throws(() => parseCatalog([...wireCatalog, ...wireCatalog]), { code: 'INVALID_CATALOG' });
+  const mixed = parseCatalog([{ id: 'multimodal', name: 'Mixed', provider: 'openai-codex', type: 'chat', input: ['text', 'image', 'audio', 'video'], reasoning: false }]);
+  assert.deepEqual(mixed[0]!.inputModalities, ['text', 'image']); assert.ok(mixed[0]!.warning); assert.equal(mixed[0]!.available, true);
 });
 
 test('Responses receives the native current tools and full history, without preview-forbidden hints', async () => {

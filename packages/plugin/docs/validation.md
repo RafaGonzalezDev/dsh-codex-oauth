@@ -1,12 +1,41 @@
 # Validation
 
+## Experimental Pi catalog release: 0.1.5-pi-catalog.2
+
+Scope: `feature/pi-model-catalog`, Windows Node 24.21.0. Catalog, cache and snapshot work recorded on 2026-10-01; the presentation-order change and its revalidation recorded on 2026-10-02 (Europe/Madrid). `main` and the installed DSH core are not changed by source implementation. Historical results below are not evidence that the catalog release has passed live validation.
+
+This is the **build-time record**. Post-build artifact hashes and Desktop/live results belong in the repository's deployment receipt, so the validated tarball does not need to be rebuilt to record its own deployment.
+
+| Check | Recorded result |
+| --- | --- |
+| Compiled Client, pure React Models panel and existing sidebar | **Passed:** 31 focused tests (10 compiled Client races, 15 panel and 6 sidebar), also included in the full run. Covers independent catalog/auth state, stale refresh/status results, exact names/IDs, optional metadata, source/revision/dates, empty/fallback feedback, native update events and unchanged quota/sidebar semantics. No DOM or live UI claim. |
+| Full Host/Client build and complete automated suite | **Passed:** `npm run check`; **139 tests, 139 passed, 0 failed, 0 cancelled, 0 skipped**. Host, generated RPC and Client rebuilt before the run. |
+| Selection order in panel and native selector | **Passed:** the exposed selection view lists the newest generation first while the catalog, its cache and the bundled snapshot keep Pi's exact source order. Panel, adapter and session tests cover the order and confirm that the projection renames, adds, removes, aliases and substitutes nothing. |
+| Static types | **Passed:** `npm run typecheck`; additional strict standalone checks cover catalog, session and the new session regressions. |
+| Pi service fetch and generated snapshot | **Passed:** `npm run catalog:snapshot -- --check`; the real public Pi endpoint matches the bundled **9 models**, including exact `gpt-6.1-sol` / `GPT-6.1 Sol`. This is metadata evidence, not inference. |
+| Catalog/cache and session behavior | **Passed in the complete suite:** 200/304, ETag, timeout/size bounds, corrupt/malformed input, atomic-write failure, replacement and valid empty lists, single-flight, cancellation/dispose, cache isolation, legacy model payloads without grant writes, stale credential reads and delayed commit races. |
+| Native credential privacy and concurrency | **Passed with fictional credentials:** concurrent stores rotate once and reload after logout. POSIX retains the `0600` assertion; Windows verifies the file DACL inherited from a private synthetic fixture directory. No real profile ACL, credential file or machine TEMP ACL is changed or audited by this test. |
+| Model-specific provider rejection | **Passed:** HTTP 400/401/403/404 with `model_not_found` remains `MODEL_UNAVAILABLE`, retains the grant and exact selection, and never substitutes another model. |
+| Package artifact | **Post-build check:** pack `0.1.5-pi-catalog.2`, retain the exact tarball/digest and the prior `0.1.4` rollback artifact in the deployment receipt. |
+| Windows desktop profile installation | **Passed and recorded in the deployment receipts:** the global Windows bundled CLI installed into the real `~/.dsh/profiles/desktop` profile, which started at `0.1.4`, then `0.1.5-pi-catalog.1`, then `0.1.5-pi-catalog.2` (38/38 files byte-identical). No ASAR/core or Pi/WSL patch. |
+| Host and visible UI | **User-confirmed on Windows:** after the Host restart, the existing `http://127.0.0.1:19387` UI showed the panel with exact human names/IDs and the native selector, and the `0.1.5-pi-catalog.2` ordering with the newest generation first. No replacement server and no inferred HMR. |
+| Real account access through Pi | **User-confirmed externally:** Pro 5x account. This confirms the user's Pi result, not this plugin's direct Responses request. |
+| Live inference through this plugin | **Passed on Windows and recorded in the `0.1.5-pi-catalog.1` receipt:** one exact-model `gpt-6.1-sol` request returned HTTP 200, text `OK` and an independently observed terminal `response.completed`. |
+| Platform coverage for `0.1.5-pi-catalog.2` | **Windows Desktop only.** macOS Desktop and Linux/Web were **not executed** for this release. The package is platform-neutral (prebuilt JavaScript, pure-JavaScript dependencies, no `os`/`cpu` restriction, no native module and no platform-specific branch) and the `0.1.2` baseline was validated on macOS, but those are not runtime results for this release. Static neutrality is not evidence of successful installation, sign-in, catalog refresh or inference on an unexecuted platform. |
+
+Record each deployment result only when its own evidence is available. Keep public diagnostics token-free; do not store grants, account identifiers or raw authenticated headers in the repository. Installation and rollback steps are in the [plugin guide](<../README.md>).
+
+## Historical baseline: 0.1.2 / 38 tests
+
+The following evidence is retained as historical validation of the pre-Pi-catalog implementation. Its `/v1/models` discovery behavior and model availability statements do not describe the experimental release above.
+
 Target: installed macOS DeepSeek Harness 0.2.0-rc.2 and its published npm contracts, Node 24. Source inspection used the public `dsh-v0.2.0-rc.2` tag; the installed app reports a different build commit, so installed-runtime checks accompany source compatibility.
 
 The 38 automated tests cover real RSA/JWKS signatures, OIDC issuer/audience/expiry/nonce, callbacks, PKCE, cancellation, issued-client reuse, missing consent, rotating refresh, concurrent managers, disconnect races, profile isolation, model order/visibility/capabilities, tools, multimodal projection, persisted reasoning, account/model replay isolation, and incomplete/contradictory streams.
 
 Native integration tests exercise actual Cordis, file credentials, authorization cancellation, compiled Host unload, generated Remote schemas and the browser module factory. Simulated SDK transport verifies effective request bodies, no SDK retries, no API-key fallback, and safe errors.
 
-## Recorded checks (2026-10-01)
+### Recorded checks (2026-10-01)
 
 | Check | Result |
 | --- | --- |

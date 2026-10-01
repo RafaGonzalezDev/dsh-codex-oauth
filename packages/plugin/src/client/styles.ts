@@ -21,6 +21,11 @@ div:has(> .chatgpt-plan-sidebar) { flex-wrap: wrap; }
 .chatgpt-plan-actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0; }
 .chatgpt-plan-panel button { border: 1px solid #7777; background: transparent; color: inherit; font: inherit; border-radius: 8px; padding: 8px 14px; cursor: pointer; }
 .chatgpt-plan-panel button:disabled { opacity: .5; cursor: default; }
+.chatgpt-plan-panel button:focus-visible, .chatgpt-plan-panel a:focus-visible { outline: 2px solid var(--dsw-alias-brand-primary, currentColor); outline-offset: 3px; }
+.chatgpt-plan-catalog { border-top: 1px solid #7773; border-bottom: 1px solid #7773; padding: 16px 0; margin: 16px 0; }
+.chatgpt-plan-catalog-details { display: flex; flex-wrap: wrap; gap: 12px 24px; margin: 12px 0; font-size: 12px; }
+.chatgpt-plan-catalog-details dt { font-weight: 600; }
+.chatgpt-plan-catalog-details dd { margin: 4px 0 0; overflow-wrap: anywhere; }
 .chatgpt-plan-panel .chatgpt-plan-continue { background: #101010; color: #fff; border-color: #101010; }
 .chatgpt-plan-panel a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
 .chatgpt-plan-panel ul { list-style: none; padding: 0; }

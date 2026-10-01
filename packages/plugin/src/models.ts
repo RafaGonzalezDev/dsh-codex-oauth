@@ -5,58 +5,94 @@ import { PlanError } from './errors.ts';
 
 export const PROVIDER_ID = 'chatgpt-plan';
 export const PREFERRED_MODEL = 'gpt-6.1-sol';
+export const PI_CATALOG_URL = 'https://pi.dev/api/models/providers/openai-codex?types=chat';
+export const PI_CATALOG_PROVIDER = 'openai-codex';
+export const PI_CATALOG_MAX_MODELS = 1000;
+export const PI_CATALOG_MAX_BYTES = 2 * 1024 * 1024;
+
+const Identifier = z.string().max(256).refine(value => value.trim().length > 0);
+const ReasoningEffort = z.enum(['none', 'minimal', 'low', 'medium', 'high', 'xhigh', 'max']);
+const THINKING_LEVELS = ['off', 'minimal', 'low', 'medium', 'high', 'xhigh', 'max'] as const;
+const ThinkingMapValue = Identifier.nullable().optional();
 
 export const CatalogModel = z.object({
-  id: z.string().min(1), name: z.string().min(1),
-  inputModalities: z.array(z.enum(['text', 'image'])),
-  contextWindow: z.number().positive().optional(),
-  reasoningEfforts: z.array(z.string().min(1)).optional(),
-  defaultReasoningEffort: z.string().optional(),
-  available: z.boolean(), warning: z.string().optional(),
-});
+  id: Identifier, name: Identifier,
+  inputModalities: z.array(z.enum(['text', 'image'])).max(2),
+  contextWindow: z.number().int().positive().optional(),
+  reasoningEfforts: z.array(ReasoningEffort).max(7).optional(),
+  defaultReasoningEffort: ReasoningEffort.optional(),
+  available: z.boolean(), warning: z.string().min(1).optional(),
+}).strict().refine(model =>
+  new Set(model.inputModalities).size === model.inputModalities.length
+  && (!model.available || model.inputModalities.includes('text'))
+  && (!model.reasoningEfforts || new Set(model.reasoningEfforts).size === model.reasoningEfforts.length)
+  && (!model.defaultReasoningEffort || model.reasoningEfforts?.includes(model.defaultReasoningEffort)),
+);
 export type CatalogModel = z.infer<typeof CatalogModel>;
 
-/** Reviewed on 2026-10-01 against the official model page linked in docs/models.md. */
-const REVIEWED: Record<string, { inputModalities: Array<'text' | 'image'>; contextWindow: number; reasoningEfforts: string[]; defaultReasoningEffort?: string }> = {
-  'gpt-6-sol': { inputModalities: ['text', 'image'], contextWindow: 1_050_000, reasoningEfforts: ['none', 'low', 'medium', 'high', 'xhigh', 'max'], defaultReasoningEffort: 'medium' },
-  'gpt-6-luna': { inputModalities: ['text', 'image'], contextWindow: 1_050_000, reasoningEfforts: ['none', 'low', 'medium', 'high', 'xhigh', 'max'], defaultReasoningEffort: 'medium' },
-  'gpt-6-astra': { inputModalities: ['text', 'image'], contextWindow: 1_050_000, reasoningEfforts: ['low', 'medium', 'high', 'xhigh', 'max'] },
-  'gpt-6.1-sol': { inputModalities: ['text', 'image'], contextWindow: 1_050_000, reasoningEfforts: ['low', 'medium', 'high', 'xhigh', 'max'], defaultReasoningEffort: 'medium' },
-};
+function uniqueIdentities(models: Array<{ id: string }>): boolean {
+  return new Set(models.map(model => model.id)).size === models.length;
+}
 
-const WireModel = z.object({
-  slug: z.string().min(1), display_name: z.string().min(1), visibility: z.string(),
-  input_modalities: z.array(z.string().min(1)).optional(),
-  context_window: z.number().positive().optional(),
-  supported_reasoning_levels: z.array(z.union([z.string(), z.object({ effort: z.string(), description: z.string().optional() })])).optional(),
-  default_reasoning_level: z.string().optional(),
-});
+export const CatalogModels = z.array(CatalogModel).max(PI_CATALOG_MAX_MODELS).refine(uniqueIdentities);
 
-export function parseCatalog(body: unknown): CatalogModel[] {
-  const result = z.object({ models: z.array(WireModel) }).safeParse(body);
-  if (!result.success) throw new PlanError('INVALID_CATALOG', 'OpenAI returned an unsupported model catalog.');
-  const seen = new Set<string>();
-  for (const model of result.data.models) {
-    if (seen.has(model.slug)) throw new PlanError('INVALID_CATALOG', 'OpenAI returned duplicate model identifiers.');
-    seen.add(model.slug);
-  }
-  const models = result.data.models.filter(model => model.visibility === 'list').map(model => {
-    const reviewed = REVIEWED[model.slug];
-    const advertisedModalities = model.input_modalities ?? reviewed?.inputModalities ?? [];
-    const modalities = advertisedModalities.filter((value): value is 'text' | 'image' => value === 'text' || value === 'image');
-    const efforts = model.supported_reasoning_levels?.map(level => typeof level === 'string' ? level : level.effort) ?? reviewed?.reasoningEfforts;
-    const defaultEffort = model.default_reasoning_level ?? reviewed?.defaultReasoningEffort;
-    const context = model.context_window ?? reviewed?.contextWindow;
+/** Only these Pi metadata fields may cross into the provider catalog or snapshot. */
+export const PiCatalogBody = z.array(z.object({
+  id: Identifier,
+  name: Identifier,
+  provider: z.literal(PI_CATALOG_PROVIDER),
+  type: z.literal('chat'),
+  input: z.array(Identifier),
+  contextWindow: z.number().int().positive().optional(),
+  reasoning: z.boolean(),
+  thinkingLevelMap: z.object({
+    off: ThinkingMapValue,
+    minimal: ThinkingMapValue,
+    low: ThinkingMapValue,
+    medium: ThinkingMapValue,
+    high: ThinkingMapValue,
+    xhigh: ThinkingMapValue,
+    max: ThinkingMapValue,
+  }).optional(),
+})).max(PI_CATALOG_MAX_MODELS).refine(uniqueIdentities);
+
+export function parsePiCatalog(body: unknown): CatalogModel[] {
+  const result = PiCatalogBody.safeParse(body);
+  if (!result.success) throw new PlanError('INVALID_CATALOG', 'Pi returned an invalid model catalog.');
+  return result.data.map(model => {
+    const inputModalities = [...new Set(model.input.filter((value): value is 'text' | 'image' => value === 'text' || value === 'image'))];
+    const unsupportedInput = model.input.some(value => value !== 'text' && value !== 'image');
+    const available = inputModalities.includes('text');
+    const efforts: Array<z.infer<typeof ReasoningEffort>> = [];
+    if (model.reasoning) {
+      // Pi's standard levels are opt-out; xhigh and max are strictly opt-in.
+      for (const level of THINKING_LEVELS) {
+        const mapped = model.thinkingLevelMap?.[level];
+        if (mapped === null || ((level === 'xhigh' || level === 'max') && mapped === undefined)) continue;
+        const effort = ReasoningEffort.safeParse(mapped ?? (level === 'off' ? 'none' : level));
+        if (effort.success && !efforts.includes(effort.data)) efforts.push(effort.data);
+      }
+    }
     return {
-      id: model.slug, name: model.display_name, inputModalities: [...modalities],
-      ...(context ? { contextWindow: context } : {}),
-      ...(efforts?.length ? { reasoningEfforts: [...new Set(efforts)], ...(defaultEffort && efforts.includes(defaultEffort) ? { defaultReasoningEffort: defaultEffort } : {}) } : {}),
-      available: modalities.includes('text'),
-      ...(!modalities.includes('text') ? { warning: 'Input capabilities are unavailable. This model is not advertised to the Harness selector.' } : {}),
-      ...(modalities.includes('text') && advertisedModalities.some(value => value !== 'text' && value !== 'image') ? { warning: 'Direct audio and video inputs are not supported by this provider. They retain native file handling.' } : {}),
+      id: model.id, name: model.name, inputModalities,
+      ...(model.contextWindow !== undefined ? { contextWindow: model.contextWindow } : {}),
+      ...(efforts.length ? { reasoningEfforts: efforts } : {}),
+      available,
+      ...(!available ? { warning: 'This model does not advertise text input and is not selectable.' }
+        : unsupportedInput ? { warning: 'Unsupported input modalities are omitted. Only text and image inputs are supported by this provider.' } : {}),
     };
   });
-  return models;
+}
+
+/**
+ * Order used by the Models panel and the native composer selector. Pi publishes
+ * its chat catalog from oldest to newest, so the exposed selection view is
+ * reversed and the newest generation is offered first. The stored catalog, the
+ * profile cache and the bundled snapshot keep Pi's exact source order, and no
+ * model is renamed, removed, added or substituted by this projection.
+ */
+export function selectionOrder(models: readonly CatalogModel[]): CatalogModel[] {
+  return [...models].reverse();
 }
 
 export function publicModel(model: CatalogModel): ModelView {
@@ -64,10 +100,10 @@ export function publicModel(model: CatalogModel): ModelView {
 }
 
 export function resolvedModel(model: CatalogModel): LlmResolvedModelInfo {
-  if (!model.available) throw new PlanError('UNKNOWN_CAPABILITY', 'This model has no verified input capabilities. Refresh the catalog or update the plugin.');
+  if (!model.available) throw new PlanError('UNKNOWN_CAPABILITY', 'This model has unsupported input capabilities. Refresh the catalog or update the plugin.');
   return {
     provider: PROVIDER_ID, id: model.id, name: model.name, inputModalities: [...model.inputModalities],
-    ...(model.contextWindow ? { context: { contextWindow: model.contextWindow } } : {}),
+    ...(model.contextWindow !== undefined ? { context: { contextWindow: model.contextWindow } } : {}),
     ...(model.reasoningEfforts?.length ? {
       reasoning: {
         efforts: model.reasoningEfforts.map(id => ({ id: id as ReasoningEffortId, name: id })),

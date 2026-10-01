@@ -1,6 +1,6 @@
 {
   "name": "dsh-chatgpt-plan-workspace",
-  "version": "0.1.4",
+  "version": "0.1.5-pi-catalog.2",
   "private": true,
   "type": "module",
   "license": "MIT",
@@ -14,6 +14,7 @@
     "build": "npm run build --workspace dsh-chatgpt-plan",
     "build:host": "npm run build:host --workspace dsh-chatgpt-plan",
     "build:client": "npm run build:client --workspace dsh-chatgpt-plan",
+    "catalog:snapshot": "node --import tsx scripts/update-pi-catalog.ts",
     "typecheck": "tsc -b tsconfig.host.json tsconfig.client.json",
     "test": "node --import tsx --test test/*.test.ts",
     "check": "npm run build && npm test",

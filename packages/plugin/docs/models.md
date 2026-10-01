@@ -1,21 +1,34 @@
 # Models and restrictions
 
-`GET https://api.openai.com/v1/models` uses the account access token. Only entries with `visibility: "list"` are displayed, preserving returned order, IDs and names. Entries lacking verified text input capabilities remain visible with an explanation but are not advertised to the native conversation selector.
+## Catalog source and account access
 
-The catalog's capability metadata takes precedence. The following baseline was reviewed on **2026-10-01** and applies to exact identifiers returned by the account. Capability metadata alone does not grant access or add an omitted model:
+The experimental `0.1.5-pi-catalog.2` provider uses [Pi's openai-codex chat catalog](<https://pi.dev/api/models/providers/openai-codex?types=chat>) as its **only model metadata source**. It never calls OAuth `GET /v1/models` for discovery. `openai-codex` identifies the Pi catalog namespace; it does not select Codex inference transport, credentials or OAuth behavior.
 
-| Identifier | Verified input | Context | Reasoning efforts | Default when documented |
-| --- | --- | --- | --- | --- |
-| `gpt-6.1-sol` | text, image | 1,050,000 | low, medium, high, xhigh, max | medium |
-| `gpt-6-sol` | text, image | 1,050,000 | none, low, medium, high, xhigh, max | medium |
-| `gpt-6-astra` | text, image | 1,050,000 | low, medium, high, xhigh, max | unspecified |
-| `gpt-6-luna` | text, image | 1,050,000 | none, low, medium, high, xhigh, max | medium |
+The exact Pi `name` is the display label, including its original capitalization: **GPT-6.1 Sol**. The exact `id`, **`gpt-6.1-sol`**, is the technical identifier sent in requests. There are no aliases that rewrite a request, merged supplemental lists or automatic substitutions.
 
-Sources: [GPT-6.1 Sol](https://developers.openai.com/api/docs/models/gpt-6.1-sol), [GPT-6 Sol](https://developers.openai.com/api/docs/models/gpt-6-sol), [GPT-6 Astra](https://developers.openai.com/api/docs/models/gpt-6-astra), [GPT-6 Luna](https://developers.openai.com/api/docs/models/gpt-6-luna). Availability and metadata can change. An unavailable GPT-6.1 Sol is explained without selecting another model.
+The Models panel and the native composer selector list the catalog **newest first**, so the most recent generation such as **GPT-6.1 Sol** appears at the top. This is a presentation projection over Pi's exact source order: the catalog, the profile cache and the bundled snapshot keep Pi's order, and the projection never renames, adds, removes, aliases or substitutes a model. Changing the remote order therefore changes the displayed order, and no model is pinned to a fixed position.
 
-## Catalog policy
+A model marked `available` and `preferredModelAvailable` in public status is **selectable in the local catalog**, not verified for the current account. Pi publishes shared metadata, not entitlement. OpenAI checks account access on a real inference request. User-confirmed Pi access with a Pro 5x account does not establish a successful live request through this updated DSH plugin.
 
-This version uses only the official account catalog. Omitted identifiers are never appended, even if a separate diagnostic request has succeeded. No Pi catalog, imported credentials, access-check feature or API-key fallback is used. Refreshing the catalog performs no inference. Cached supplemental entries from earlier development builds are excluded on upgrade.
+## Updates, cache and empty lists
+
+- Every plugin activation loads a valid profile cache or the bundled snapshot, then checks Pi in the background. Startup and account actions do not wait for the network update.
+- **Update models now** calls the catalog refresh RPC. It performs metadata network I/O only, never an inference/access probe.
+- Each remote check has a **4-second** deadline, **2 MiB** JSON bound and **1,000-record** maximum. The JSON is untrusted input and must pass schema/identifier/capability validation before publication.
+- The per-profile `.cache/dsh-chatgpt-plan/pi-catalog-v1.json` stores the valid JSON and ETag independently of OAuth grants. Conditional requests avoid replacing unchanged metadata unnecessarily.
+- A valid response **replaces the entire list**, including a valid empty list. Removed models do not survive by merging with a previous list or snapshot.
+- A failed fetch or invalid response leaves the last valid list active, falling back to the bundled snapshot when no valid cache exists. A catalog warning explains the failure without asking for unnecessary OAuth reconnection.
+- The source badge, revision, loaded-from state and last check/update times describe the **active catalog**, not a fabricated successful update. The bundled snapshot is generated from the same Pi service, not a hand-maintained model list.
+
+An empty result means there are no selectable models in that current catalog; the panel explains this and offers the existing update action. Do not add IDs manually. Runtime refreshes can discover new models without updating the whole plugin package.
+
+## Capabilities and context
+
+Pi metadata takes precedence over older reviewed model limits. For example, when the Pi entry for `gpt-6.1-sol` reports **272,000** context tokens, the plugin uses **272,000**, not the **1,050,000** value reviewed in the previous implementation. That older documentation review is not an override of the active source. This example is a precedence rule, not a frozen model list; Pi may change its metadata.
+
+Only capabilities supported by the native integration are advertised. Text/image metadata is projected into the native model view; an entry without usable text input is not selectable. Unsupported input modalities are explained rather than advertised as implemented transport features. Unknown capabilities do not grant account access.
+
+The parser does not import provider base URLs, SDK/API selections, headers, credentials or pricing into the adapter. Direct Responses transport and native request restrictions remain fixed locally. No estimated prices, alternative billing or API-key fallback are introduced by importing metadata.
 
 ## Native parity
 
@@ -29,10 +42,10 @@ This version uses only the official account catalog. Omitted identifiers are nev
 
 The current plan-sharing route requires `store: false` and `stream: true`. It supports the documented function/custom tools within a namespace. The plugin declares the Harness's local function tools in its `harness` namespace.
 
-Unsupported preview parameters such as `max_output_tokens`, `temperature`, stop sequences, server-side previous response IDs, service-tier overrides and hosted tool search are not sent. Native auxiliary callers can supply output/temperature hints; this route cannot enforce them. The advertised model context is a verified context limit, not an advertised configurable output cap.
+Unsupported preview parameters such as `max_output_tokens`, `temperature`, stop sequences, server-side previous response IDs, service-tier overrides and hosted tool search are not sent. Native auxiliary callers can supply output/temperature hints; this route cannot enforce them. The advertised context comes from valid catalog metadata, not an advertised configurable output cap.
 
 OpenAI-hosted web search, file search, code interpreter, image generation, hosted MCP and native Live/computer execution are outside this preview route. Equivalent configured Harness tools can still run locally under normal permissions. No unsupported hosted capability is advertised or silently replaced.
 
 Only the documented signed ChatGPT grant is used. API-key billing is never selected automatically. Account/app usage limits and eligibility restrictions are surfaced explicitly, with a link to ChatGPT usage settings. No reset time is inferred.
 
-Sources: [model discovery and inference](https://developers.openai.com/siwc/token-sharing-open-source/models-and-inference), [preview limitations](https://developers.openai.com/siwc/token-sharing-open-source/preview-limitations), [errors and recovery](https://developers.openai.com/siwc/token-sharing-open-source/errors-and-recovery).
+Sources: [Pi catalog](<https://pi.dev/api/models/providers/openai-codex?types=chat>), [OpenAI inference contract](<https://developers.openai.com/siwc/token-sharing-open-source/models-and-inference>), [preview limitations](<https://developers.openai.com/siwc/token-sharing-open-source/preview-limitations>), [errors and recovery](<https://developers.openai.com/siwc/token-sharing-open-source/errors-and-recovery>). The OpenAI discovery description is not the source used by this experimental catalog implementation.
