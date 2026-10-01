@@ -53,6 +53,26 @@ test('catalog refresh and restart add and retire IDs without refreshing tokens o
   f.manager.dispose(); restarted.dispose();
 });
 
+test('the exposed selection view shows the newest model first while the catalog keeps Pi order', async () => {
+  const f = await fixture();
+  f.catalog.values = parsePiCatalog([
+    { ...piCatalog[0], id: 'gpt-5.5', name: 'GPT-5.5' },
+    { ...piCatalog[0], id: 'gpt-6-sol', name: 'GPT-6 Sol' },
+    { ...piCatalog[0], id: 'gpt-6.1-sol', name: 'GPT-6.1 Sol' },
+  ]);
+  const expected = ['gpt-6.1-sol', 'gpt-6-sol', 'gpt-5.5'];
+  assert.deepEqual(f.manager.models().map(model => model.id), expected);
+  assert.deepEqual((await f.manager.status()).models.map(model => model.id), expected);
+  assert.equal((await f.manager.status()).preferredModelAvailable, true);
+  // Pi's source order stays canonical in the catalog, its cache and the snapshot.
+  assert.deepEqual(f.catalog.models().map(model => model.id), ['gpt-5.5', 'gpt-6-sol', 'gpt-6.1-sol']);
+  assert.equal(f.catalog.refreshes, 0); assert.equal(f.oauth.refreshes, 0);
+  const stored = await f.store.readRecord(f.repo.key);
+  assert.ok(stored?.kind === 'grant');
+  assert.deepEqual((stored.payload as StoredSession).models, []);
+  f.manager.dispose();
+});
+
 test('a catalog failure does not invalidate or rotate a connected grant', async () => {
   const f = await fixture({ expired: true }); const before = await f.store.readRecord(f.repo.key);
   f.catalog.refreshError = new PlanError('CATALOG_UNAVAILABLE', 'The catalog is temporarily unavailable.');

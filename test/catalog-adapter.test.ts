@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import type { GenerateOptions, StreamChunk } from '@deepseek-ai/dsh-llm';
 import { ChatGPTPlanAdapter } from '../packages/plugin/src/adapter.ts';
+import { parsePiCatalog } from '../packages/plugin/src/models.ts';
 import { fixture } from './helpers.ts';
 
 const imagePort = { imageLimits: { maxImageBytes: 1000 }, readImageRequest: async () => { throw new Error('No images in this test.'); } } as any;
@@ -38,5 +39,23 @@ test('unlisted IDs are never discovered implicitly, aliased, sent, or substitute
   }
   assert.equal(f.catalog.refreshes, 0); assert.equal(f.oauth.refreshes, 0); assert.equal(calls, 0);
   assert.equal((await adapter.resolveModel('chatgpt-plan', 'gpt-6.1-sol')).name, 'GPT-6.1 Sol');
+  f.manager.dispose();
+});
+
+test('the native selector lists the newest model first and keeps unselectable entries out', async () => {
+  const f = await fixture();
+  const adapter = new ChatGPTPlanAdapter(f.manager, imagePort, undefined, undefined, async () => { throw new Error('No request expected.'); });
+  f.catalog.values = parsePiCatalog([
+    { id: 'gpt-5.5', name: 'GPT-5.5', provider: 'openai-codex', type: 'chat', input: ['text'], reasoning: false },
+    { id: 'gpt-6-sol', name: 'GPT-6 Sol', provider: 'openai-codex', type: 'chat', input: ['text'], reasoning: false },
+    { id: 'gpt-6.1-sol', name: 'GPT-6.1 Sol', provider: 'openai-codex', type: 'chat', input: ['text', 'image'], contextWindow: 272_000, reasoning: true },
+    { id: 'image-only', name: 'Image Only', provider: 'openai-codex', type: 'chat', input: ['image'], reasoning: false },
+  ]);
+  const listed = await adapter.listModels('chatgpt-plan');
+  assert.deepEqual(listed.map(model => model.id), ['gpt-6.1-sol', 'gpt-6-sol', 'gpt-5.5']);
+  assert.deepEqual(listed.map(model => model.name), ['GPT-6.1 Sol', 'GPT-6 Sol', 'GPT-5.5']);
+  assert.equal(listed[0]!.context?.contextWindow, 272_000);
+  assert.equal((await adapter.resolveModel('chatgpt-plan', 'gpt-5.5')).name, 'GPT-5.5');
+  await assert.rejects(adapter.resolveModel('chatgpt-plan', 'image-only'), { code: 'UNKNOWN_CAPABILITY' });
   f.manager.dispose();
 });

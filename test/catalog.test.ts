@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdtemp, mkdir, readFile, readdir, rename, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
-import { CatalogModel, parsePiCatalog, PiCatalogBody, PI_CATALOG_MAX_BYTES, PI_CATALOG_URL, PREFERRED_MODEL, PROVIDER_ID, publicModel, resolvedModel } from '../packages/plugin/src/models.ts';
+import { CatalogModel, parsePiCatalog, PiCatalogBody, PI_CATALOG_MAX_BYTES, PI_CATALOG_URL, PREFERRED_MODEL, PROVIDER_ID, publicModel, resolvedModel, selectionOrder } from '../packages/plugin/src/models.ts';
 import { PiCatalog } from '../packages/plugin/src/pi-catalog.ts';
 import { PI_CATALOG_SNAPSHOT } from '../packages/plugin/src/pi-catalog.generated.ts';
 import type { CatalogInfo } from '../packages/plugin/src/contracts.ts';
@@ -64,6 +64,18 @@ test('normalization retains casing, order and new IDs without copying route meta
   const view = publicModel(models[0]!);
   view.inputModalities.length = 0;
   assert.deepEqual(models[0]!.inputModalities, ['text', 'image']);
+});
+
+test('selection order offers the newest generation first without rewriting source order', () => {
+  const source = parsePiCatalog([wire('gpt-5.5'), wire('gpt-6-sol'), wire('gpt-6.1-sol')]);
+  const ordered = selectionOrder(source);
+  assert.deepEqual(ordered.map(model => model.id), ['gpt-6.1-sol', 'gpt-6-sol', 'gpt-5.5']);
+  // The catalog, its cache and the bundled snapshot keep Pi's exact order.
+  assert.deepEqual(source.map(model => model.id), ['gpt-5.5', 'gpt-6-sol', 'gpt-6.1-sol']);
+  assert.notEqual(ordered, source);
+  ordered.pop();
+  assert.equal(source.length, 3);
+  assert.deepEqual(selectionOrder([]), []);
 });
 
 test('Pi reasoning levels follow opt-out base levels, opt-in extended levels and supported wire enums', () => {

@@ -3,7 +3,7 @@ import { realpath } from 'node:fs/promises';
 import { credentialKey, type CredentialKey, type CredentialProvider, type CredentialRecord } from '@deepseek-ai/dsh-credentials';
 import { z } from 'zod';
 import type { AuthorizationOptions, ConnectionStatus, DisconnectResult } from './contracts.ts';
-import { CatalogModel, PREFERRED_MODEL, publicModel } from './models.ts';
+import { CatalogModel, PREFERRED_MODEL, publicModel, selectionOrder } from './models.ts';
 import type { CatalogSource } from './pi-catalog.ts';
 import { DIRECT_SCOPE, OAuthClient, buildAuthorizationUrl, createPendingAuthorization, startCallbackListener, type Registration, type TokenSet } from './oauth.ts';
 import { PlanError, safeError, throwIfAborted } from './errors.ts';
@@ -134,12 +134,12 @@ export class SessionManager {
     if (session && this.observeSession(session, true)) this.changed();
   }
 
-  models(): CatalogModel[] { return this.connected && !this.blocked && !this.disposed ? this.catalog.models() : []; }
+  models(): CatalogModel[] { return this.connected && !this.blocked && !this.disposed ? selectionOrder(this.catalog.models()) : []; }
 
   async status(): Promise<ConnectionStatus> {
     const session = await this.repository.read();
     const registration = activeRegistration(session);
-    const models = session.state === 'connected' && !this.blocked && !this.disposed ? this.catalog.models() : [];
+    const models = session.state === 'connected' && !this.blocked && !this.disposed ? selectionOrder(this.catalog.models()) : [];
     return {
       state: this.liveAuthorization && session.state !== 'connected' ? 'authorizing' : session.state,
       profile: this.profile,

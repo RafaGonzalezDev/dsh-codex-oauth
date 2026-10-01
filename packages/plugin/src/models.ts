@@ -84,6 +84,17 @@ export function parsePiCatalog(body: unknown): CatalogModel[] {
   });
 }
 
+/**
+ * Order used by the Models panel and the native composer selector. Pi publishes
+ * its chat catalog from oldest to newest, so the exposed selection view is
+ * reversed and the newest generation is offered first. The stored catalog, the
+ * profile cache and the bundled snapshot keep Pi's exact source order, and no
+ * model is renamed, removed, added or substituted by this projection.
+ */
+export function selectionOrder(models: readonly CatalogModel[]): CatalogModel[] {
+  return [...models].reverse();
+}
+
 export function publicModel(model: CatalogModel): ModelView {
   return { id: model.id, name: model.name, available: model.available, inputModalities: [...model.inputModalities], ...(model.warning ? { warning: model.warning } : {}) };
 }
