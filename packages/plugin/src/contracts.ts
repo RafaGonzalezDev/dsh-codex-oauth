@@ -12,12 +12,26 @@ export interface ModelView {
   warning?: string;
 }
 
+/** Pi publishes metadata, not account-specific inference authorization. */
+export interface CatalogInfo {
+  source: 'pi';
+  sourceUrl: string;
+  loadedFrom: 'bundled' | 'cache' | 'remote';
+  revision: string;
+  lastCheckedAt?: number;
+  lastUpdatedAt?: number;
+  refreshing: boolean;
+  warning?: string;
+}
+
 export interface ConnectionStatus {
   state: 'disconnected' | 'authorizing' | 'connected' | 'needs-reconnect';
   profile: string;
   account?: AccountView;
   models: ModelView[];
+  /** Selectability in the local catalog, not a verified account entitlement. */
   preferredModelAvailable: boolean;
+  catalog?: CatalogInfo;
   warning?: string;
   errorCode?: string;
 }

@@ -56,7 +56,9 @@ export class ChatGPTPlanService extends TypertRemoteService {
     try { await this.manager.refreshModels(signal); return await this.manager.status(); }
     catch (error) {
       const failure = safeError(error);
-      return { ...await this.manager.status(), warning: failure.message, errorCode: failure.code };
+      const status = await this.manager.status();
+      // A public catalog outage is not an OAuth error and must not request reconsent.
+      return { ...status, ...(status.catalog ? { catalog: { ...status.catalog, warning: failure.message } } : {}) };
     }
   }
 }

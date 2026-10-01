@@ -44,7 +44,7 @@ function applyPanel(ctx: Context): void {
       const result = await ctx.remote.chatgptPlan.getStatus();
       if (version !== refreshVersion) return;
       if (result.ok) {
-        const { message, ...retained } = snapshot;
+        const { message, catalogMessage: _catalogMessage, ...retained } = snapshot;
         publish({ ...retained, status: result.value, ...(message && message !== en.failed ? { message } : {}) });
       }
       else readFailed();
@@ -52,6 +52,7 @@ function applyPanel(ctx: Context): void {
   };
   const connect = async (changeAccount: boolean) => {
     if (snapshot.busy) return;
+    ++refreshVersion;
     publish({ ...snapshot, busy: true });
     let stream: typeof login;
     try {
@@ -62,12 +63,15 @@ function applyPanel(ctx: Context): void {
           const { authorizationUrl: _url, ...retained } = snapshot;
           publish({ ...retained, message: event.message, ...(event.url ? { authorizationUrl: event.url } : {}) });
           if (event.url) window.open(event.url, '_blank', 'noopener,noreferrer');
-        } else if (event.type === 'status') publish({ ...snapshot, status: event.status });
-        else if (event.type === 'error') publish({ ...snapshot, message: event.message });
+        } else if (event.type === 'status') {
+          ++refreshVersion;
+          publish({ ...snapshot, status: event.status });
+        } else if (event.type === 'error') publish({ ...snapshot, message: event.message });
       }
     } catch { publish({ ...snapshot, message: en.failed }); }
     finally {
       if (login === stream) login = undefined;
+      ++refreshVersion;
       const { authorizationUrl: _url, ...retained } = snapshot;
       publish({ ...retained, busy: false });
       if (!disposed) await read();
@@ -75,21 +79,33 @@ function applyPanel(ctx: Context): void {
   };
   const cancel = async () => { try { await ctx.remote.chatgptPlan.cancel(); } catch { publish({ ...snapshot, message: en.failed }); } finally { login?.dispose(); } };
   const disconnect = async () => {
+    ++refreshVersion;
     publish({ ...snapshot, busy: true });
     try {
       const result = await ctx.remote.chatgptPlan.disconnect();
-      if (result.ok) publish({ status: result.value.status, busy: false });
-      else publish({ ...snapshot, busy: false, message: en.failed });
-    } catch { publish({ ...snapshot, busy: false, message: en.failed }); }
+      ++refreshVersion;
+      if (result.ok) {
+        const { message: _message, authorizationUrl: _url, ...retained } = snapshot;
+        publish({ ...retained, status: result.value.status, busy: false });
+      } else publish({ ...snapshot, busy: false, message: en.failed });
+    } catch {
+      ++refreshVersion;
+      publish({ ...snapshot, busy: false, message: en.failed });
+    }
   };
   const refresh = async () => {
-    if (snapshot.busy) return;
-    publish({ ...snapshot, busy: true });
+    if (snapshot.busy || snapshot.updatingModels || snapshot.status?.catalog?.refreshing) return;
+    const { catalogMessage: _message, ...retained } = snapshot;
+    publish({ ...retained, updatingModels: true });
     try {
       const result = await ctx.remote.chatgptPlan.refreshModels();
-      if (result.ok) publish({ status: result.value, busy: false });
-      else publish({ ...snapshot, busy: false, message: en.failed });
-    } catch { publish({ ...snapshot, busy: false, message: en.failed }); }
+      // Read the current account state after updating metadata; an account action
+      // may have completed while the catalog request was in flight.
+      if (result.ok) {
+        publish({ ...snapshot, updatingModels: false });
+        await read();
+      } else publish({ ...snapshot, updatingModels: false, catalogMessage: en.catalogFailed });
+    } catch { publish({ ...snapshot, updatingModels: false, catalogMessage: en.catalogFailed }); }
   };
   const injected = (): PanelInjected => ({
     hooks: { connection }, local: ['127.0.0.1', 'localhost', '[::1]'].includes(window.location.hostname) || 'dshDesktop' in globalThis,

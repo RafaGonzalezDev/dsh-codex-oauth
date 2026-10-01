@@ -1,12 +1,39 @@
 # Validation
 
+## Experimental Pi catalog release: 0.1.5-pi-catalog.1
+
+Scope: `feature/pi-model-catalog`, isolated `dsh-codex-oauth-pi-catalog` worktree, Windows Node 24.21.0. Recorded on 2026-10-01. The stable checkout and installed DSH core are not changed by source implementation. Historical results below are not evidence that the new catalog release has passed live validation.
+
+This is the **build-time record**. Post-build artifact hashes and Desktop/live results belong in the repository's deployment receipt, so the validated tarball does not need to be rebuilt to record its own deployment.
+
+| Check | Recorded result |
+| --- | --- |
+| Compiled Client, pure React Models panel and existing sidebar | **Passed:** 31 focused tests (10 compiled Client races, 15 panel and 6 sidebar), also included in the full run. Covers independent catalog/auth state, stale refresh/status results, exact names/IDs, optional metadata, source/revision/dates, empty/fallback feedback, native update events and unchanged quota/sidebar semantics. No DOM or live UI claim. |
+| Full Host/Client build and complete automated suite | **Passed:** `npm run check`; **136 tests, 136 passed, 0 failed, 0 cancelled, 0 skipped**. Host, generated RPC and Client rebuilt before the run. |
+| Static types | **Passed:** `npm run typecheck`; additional strict standalone checks cover catalog, session and the new session regressions. |
+| Pi service fetch and generated snapshot | **Passed:** `npm run catalog:snapshot -- --check`; the real public Pi endpoint matches the bundled **9 models**, including exact `gpt-6.1-sol` / `GPT-6.1 Sol`. This is metadata evidence, not inference. |
+| Catalog/cache and session behavior | **Passed in the complete suite:** 200/304, ETag, timeout/size bounds, corrupt/malformed input, atomic-write failure, replacement and valid empty lists, single-flight, cancellation/dispose, cache isolation, legacy model payloads without grant writes, stale credential reads and delayed commit races. |
+| Native credential privacy and concurrency | **Passed with fictional credentials:** concurrent stores rotate once and reload after logout. POSIX retains the `0600` assertion; Windows verifies the file DACL inherited from a private synthetic fixture directory. No real profile ACL, credential file or machine TEMP ACL is changed or audited by this test. |
+| Model-specific provider rejection | **Passed:** HTTP 400/401/403/404 with `model_not_found` remains `MODEL_UNAVAILABLE`, retains the grant and exact selection, and never substitutes another model. |
+| Package artifact | **Post-build check:** pack `0.1.5-pi-catalog.1`, retain the exact tarball/digest and prior `0.1.4` rollback artifact in the deployment receipt. |
+| Windows desktop profile installation | **Pending at build time:** use the global Windows bundled CLI and real `~/.dsh/profiles/desktop` profile, initially at `0.1.4`. No ASAR/core or Pi/WSL patch. |
+| Host and visible UI | **Pending at build time:** restartHost, then refresh the existing `http://127.0.0.1:19387` UI. Verify actual loaded metadata, exact human names/IDs and native selector. Do not replace the server or infer HMR. |
+| Real account access through Pi | **User-confirmed externally:** Pro 5x account. This confirms the user's Pi result, not this plugin's direct Responses request. |
+| Live inference through this plugin | **Pending at build time:** require a real terminal `response.completed` for exact model `gpt-6.1-sol`; mocks, discovery and installation cannot establish this. |
+
+Record each deployment result only when its own evidence is available. Keep public diagnostics token-free; do not store grants, account identifiers or raw authenticated headers in the repository. Installation and rollback steps are in the [plugin guide](<../README.md>).
+
+## Historical baseline: 0.1.2 / 38 tests
+
+The following evidence is retained as historical validation of the pre-Pi-catalog implementation. Its `/v1/models` discovery behavior and model availability statements do not describe the experimental release above.
+
 Target: installed macOS DeepSeek Harness 0.2.0-rc.2 and its published npm contracts, Node 24. Source inspection used the public `dsh-v0.2.0-rc.2` tag; the installed app reports a different build commit, so installed-runtime checks accompany source compatibility.
 
 The 38 automated tests cover real RSA/JWKS signatures, OIDC issuer/audience/expiry/nonce, callbacks, PKCE, cancellation, issued-client reuse, missing consent, rotating refresh, concurrent managers, disconnect races, profile isolation, model order/visibility/capabilities, tools, multimodal projection, persisted reasoning, account/model replay isolation, and incomplete/contradictory streams.
 
 Native integration tests exercise actual Cordis, file credentials, authorization cancellation, compiled Host unload, generated Remote schemas and the browser module factory. Simulated SDK transport verifies effective request bodies, no SDK retries, no API-key fallback, and safe errors.
 
-## Recorded checks (2026-10-01)
+### Recorded checks (2026-10-01)
 
 | Check | Result |
 | --- | --- |

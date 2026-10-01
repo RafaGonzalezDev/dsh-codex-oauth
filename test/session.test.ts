@@ -3,12 +3,12 @@ import assert from 'node:assert/strict';
 import { credentialKey } from '@deepseek-ai/dsh-credentials';
 import { PlanError } from '../packages/plugin/src/errors.ts';
 import { SessionManager, SessionRepository } from '../packages/plugin/src/session.ts';
-import { MemoryCredentials, StubOAuth, fixture, registration, tokenSet } from './helpers.ts';
+import { MemoryCredentials, StubCatalog, StubOAuth, fixture, registration, tokenSet } from './helpers.ts';
 
 test('two managers serialize one rotation and both receive the latest token', async () => {
   const oauth = new StubOAuth(); oauth.nextTokens = { ...tokenSet(), accessToken: 'test-rotated-access', refreshToken: 'test-rotated-refresh' };
   const f = await fixture({ expired: true, oauth });
-  const second = new SessionManager(f.repo, 'second-process', oauth);
+  const second = new SessionManager(f.repo, 'second-process', oauth, new StubCatalog());
   const values = await Promise.all([f.manager.activeGrant(), second.activeGrant(), f.manager.activeGrant()]);
   assert.equal(oauth.refreshes, 1);
   assert.ok(values.every(value => value.tokens.accessToken === 'test-rotated-access'));
@@ -77,7 +77,8 @@ test('status never includes token values and unconfirmed revocation is explicit'
 
 test('a disconnected profile performs browser sign-in, commits before loading models', async () => {
   const store = new MemoryCredentials(); const repo = new SessionRepository(store, 'sign-in-profile'); const oauth = new StubOAuth();
-  const manager = new SessionManager(repo, 'Sign-in', oauth, async () => Response.json({ models: [{ slug: 'gpt-6.1-sol', display_name: 'GPT-6.1 Sol', visibility: 'list' }] }));
+  const catalog = new StubCatalog();
+  const manager = new SessionManager(repo, 'Sign-in', oauth, catalog);
   let opened!: (url: string) => void; const url = new Promise<string>(resolve => { opened = resolve; });
   const signingIn = manager.signIn({ mode: 'connect' }, new AbortController().signal, notice => { if (notice.url) opened(notice.url); });
   const authorization = new URL(await url); const callback = new URL(authorization.searchParams.get('redirect_uri')!);
@@ -85,11 +86,12 @@ test('a disconnected profile performs browser sign-in, commits before loading mo
   callback.search = new URLSearchParams({ state: authorization.searchParams.get('state')!, code: 'test-code', client_id: registration.clientId }).toString();
   await fetch(callback); await signingIn;
   assert.equal((await manager.status()).state, 'connected'); assert.equal((await manager.status()).preferredModelAvailable, true);
+  assert.equal(catalog.refreshes, 0); assert.equal(oauth.refreshes, 0); assert.equal(manager.models()[0]?.name, 'GPT-6.1 Sol');
 });
 
 test('missing plan consent retains validated registration but never activates tokens', async () => {
   const store = new MemoryCredentials(); const repo = new SessionRepository(store, 'consent-profile'); const oauth = new StubOAuth(); oauth.nextTokens = { ...tokenSet(), scopes: ['openid'] };
-  const manager = new SessionManager(repo, 'Consent', oauth);
+  const manager = new SessionManager(repo, 'Consent', oauth, new StubCatalog());
   let opened!: (url: string) => void; const url = new Promise<string>(resolve => { opened = resolve; });
   const attempt = manager.signIn({ mode: 'connect' }, new AbortController().signal, notice => { if (notice.url) opened(notice.url); });
   const rejected = assert.rejects(attempt, { code: 'INSUFFICIENT_SCOPE' });
@@ -100,7 +102,7 @@ test('missing plan consent retains validated registration but never activates to
 });
 
 test('cancellation during browser sign-in leaves no active tokens', async () => {
-  const repo = new SessionRepository(new MemoryCredentials(), 'cancel-profile'); const manager = new SessionManager(repo, 'Cancel', new StubOAuth()); const controller = new AbortController();
+  const repo = new SessionRepository(new MemoryCredentials(), 'cancel-profile'); const manager = new SessionManager(repo, 'Cancel', new StubOAuth(), new StubCatalog()); const controller = new AbortController();
   const attempt = manager.signIn({ mode: 'connect' }, controller.signal, () => controller.abort());
   await assert.rejects(attempt, { code: 'ABORTED' }); assert.equal((await repo.read()).tokens, undefined);
 });
@@ -115,7 +117,7 @@ test('incomplete stored consent invalidates tokens even before expiry', async ()
 test('cancellation after token exchange revokes the unused grant and retains the issued client', async () => {
   const repo = new SessionRepository(new MemoryCredentials(), 'unused-grant'); const oauth = new StubOAuth(); const controller = new AbortController();
   oauth.exchange = async () => { controller.abort(); return { registration, tokens: tokenSet() }; };
-  const manager = new SessionManager(repo, 'Unused grant', oauth);
+  const manager = new SessionManager(repo, 'Unused grant', oauth, new StubCatalog());
   let open!: (url: string) => void; const url = new Promise<string>(resolve => { open = resolve; });
   const signingIn = manager.signIn({ mode: 'connect' }, controller.signal, notice => { if (notice.url) open(notice.url); });
   const rejected = assert.rejects(signingIn, { code: 'ABORTED' });
@@ -126,9 +128,10 @@ test('cancellation after token exchange revokes the unused grant and retains the
   await manager.disconnect(); assert.equal((await repo.read()).pendingClientId, registration.clientId);
 });
 
-test('cancelling catalog loading after activation keeps a valid connected session', async () => {
+test('cancelling after activation keeps a valid connected session without catalog HTTP', async () => {
   const repo = new SessionRepository(new MemoryCredentials(), 'late-cancel'); const oauth = new StubOAuth(); const controller = new AbortController();
-  const manager = new SessionManager(repo, 'Late cancel', oauth, async () => { controller.abort(); throw new DOMException('Cancelled', 'AbortError'); });
+  const catalog = new StubCatalog(); catalog.initialize = async () => { controller.abort(); };
+  const manager = new SessionManager(repo, 'Late cancel', oauth, catalog);
   let open!: (url: string) => void; const url = new Promise<string>(resolve => { open = resolve; });
   const signingIn = manager.signIn({ mode: 'connect' }, controller.signal, notice => { if (notice.url) open(notice.url); });
   const authorization = new URL(await url); const callback = new URL(authorization.searchParams.get('redirect_uri')!);
