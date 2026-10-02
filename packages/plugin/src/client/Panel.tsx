@@ -37,7 +37,7 @@ export function ConnectionPanel(props: PanelProps) {
   const authorizing = status?.state === 'authorizing' || Boolean(state.authorizationUrl);
   const label = !status ? en.loading : ({ disconnected: en.disconnected, connected: en.connected, authorizing: en.authorizing, 'needs-reconnect': en.needsReconnect })[status.state];
   return <section className="chatgpt-plan-panel" aria-label={en.title}>
-    <header><div><h3>{en.title}</h3><p>{en.subtitle}</p></div><span className="chatgpt-plan-state">{label}</span></header>
+    <header><div><h3>{en.title}</h3><p>{connected ? en.subtitleConnected : en.subtitle}</p></div><span className="chatgpt-plan-state">{label}</span></header>
     {status?.account && <p><strong>{status.account.label}</strong></p>}
     {!props.local && <p role="alert">{en.localOnly}</p>}
     <div className="chatgpt-plan-actions">

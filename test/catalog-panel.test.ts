@@ -197,3 +197,18 @@ test('the quota wording and usage destination remain unchanged', () => {
   element(result, 'p', 'Usage is charged to your ChatGPT plan and any credits you have enabled for this app in ChatGPT settings.');
   assert.equal(element(result, 'a', 'ChatGPT Settings → Usage').props.href, 'https://chatgpt.com/settings/usage');
 });
+
+test('the Models header states the plan in use once the session is connected', () => {
+  const result = render(state());
+  element(result, 'p', 'Using ChatGPT plan');
+  element(result, 'span', 'Connected');
+  assert.ok(!elements(result).some(item => item.type === 'p' && text(item) === 'Use your ChatGPT plan in DeepSeek Harness.'));
+});
+
+for (const value of ['disconnected', 'needs-reconnect', 'authorizing'] as const) {
+  test(`the Models header keeps the invitation while ${value}`, () => {
+    const result = render(state({ state: value }));
+    element(result, 'p', 'Use your ChatGPT plan in DeepSeek Harness.');
+    assert.ok(!elements(result).some(item => item.type === 'p' && text(item) === 'Using ChatGPT plan'));
+  });
+}

@@ -51,7 +51,7 @@ for (const wide of [true, false]) {
 test('the expanded connected notice shows the plan status and a safe usage link', () => {
   const result = render(state('connected'), true);
   assert.ok(result);
-  assert.match(text(result), /ChatGPT plan connected/);
+  assert.match(text(result), /Using ChatGPT plan/);
   assert.doesNotMatch(text(result), /Reconnect in Models|reconnection required/);
   const links = elements(result).filter(element => element.type === 'a');
   assert.equal(links.length, 1);
@@ -66,12 +66,12 @@ test('the expanded reconnect notice gives Models instructions without claiming a
   assert.ok(result);
   assert.match(text(result), /ChatGPT reconnection required/);
   assert.match(text(result), /Reconnect in Models/);
-  assert.doesNotMatch(text(result), /ChatGPT plan connected|View usage/);
+  assert.doesNotMatch(text(result), /Using ChatGPT plan|View usage/);
   assert.equal(elements(result).filter(element => element.type === 'a').length, 0);
 });
 
 for (const [value, label] of [
-  ['connected', 'ChatGPT plan connected'],
+  ['connected', 'Using ChatGPT plan'],
   ['needs-reconnect', 'ChatGPT reconnection required'],
 ] as const) {
   test(`the compact ${value} notice uses GPT text with a complete accessible status`, () => {
@@ -91,7 +91,7 @@ for (const [value, label] of [
       assert.equal(links.length, 0);
       const labels = nodes.map(element => `${element.props['aria-label'] ?? ''} ${element.props.title ?? ''}`).join(' ');
       assert.match(labels, /Reconnect in Models/);
-      assert.doesNotMatch(labels, /ChatGPT plan connected/);
+      assert.doesNotMatch(labels, /Using ChatGPT plan/);
     }
   });
 }
