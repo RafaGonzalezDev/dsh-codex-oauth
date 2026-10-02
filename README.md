@@ -1,20 +1,35 @@
-# dsh-codex-oauth
+# dsh-chatgpt-plan
 
-Standalone source repository for **dsh-chatgpt-plan**, a native DeepSeek Harness plugin that connects ChatGPT plan usage through Sign in with ChatGPT. The installable package is `dsh-chatgpt-plan`; its version is declared in [the package manifest](<packages/plugin/package.json>).
+A native **DeepSeek Harness** plugin that connects a ChatGPT plan account through OpenAI's *Sign in with ChatGPT* plan-sharing preview. Inference uses the official Responses API directly; Harness keeps ownership of tools and permissions.
 
-The Host owns OAuth and native credentials. **Pi is the single model metadata source**, independently of the account grant. The Responses adapter still sends inference directly to `https://api.openai.com/v1/responses`; Harness owns tool execution and permissions. The Client provides token-free Models settings and catalog status through native RPC. See the [architecture](<packages/plugin/docs/architecture.md>).
+| | |
+| --- | --- |
+| Package | `dsh-chatgpt-plan` (this source repository is `dsh-codex-oauth`) |
+| Version | `0.1.5-pi-catalog.2` — experimental |
+| Harness compatibility | `>=0.2.0-rc.2 <0.3.0-0` |
+| License | MIT |
 
-## Experimental Pi catalog branch
+![The Models panel and the native composer selector listing the Pi catalog under ChatGPT Plan, newest first, with the sidebar connection notice](<docs/assets/native-model-selector.png>)
 
-This change is developed as **`0.1.5-pi-catalog.2`** on `feature/pi-model-catalog` in the `dsh-codex-oauth` checkout. `main` remains unchanged, and only that branch is pushed. It does not patch the installed DSH ASAR, core or a Pi/WSL installation.
+## How it works
 
-The catalog comes from [Pi's openai-codex chat catalog](<https://pi.dev/api/models/providers/openai-codex?types=chat>). A background check runs on each plugin activation, with a 4-second deadline, a 2 MiB response limit and at most 1,000 records. A profile-local ETag/JSON cache and a bundled snapshot generated from the same service keep the last valid metadata available offline. A valid update replaces the whole list, including an empty list. Discovery never calls OpenAI `/v1/models` with OAuth.
+- **Sign-in.** OAuth 2.0 with PKCE through the browser, using the ChatGPT plan-sharing preview and a loopback callback on `127.0.0.1`.
+- **Credentials.** Tokens live in Harness's native managed credential store, which also handles refresh, rotation and revocation. The Client surfaces are token-free.
+- **Inference.** Requests go directly to `https://api.openai.com/v1/responses` with the granted plan permission. There is no API-key configuration, no Codex transport and no intermediary server.
+- **Model catalog.** Pi's `openai-codex` chat catalog is the only model metadata source. A profile-local cache and a bundled snapshot keep the last valid list available offline.
+- **Model identity.** Exact Pi names and IDs are preserved and listed newest first. The plugin renames, aliases and substitutes nothing; the selected ID is what is sent to OpenAI.
+- **Tools and attachments.** Native history, local tool declarations and results, images and file references are projected into the request. Harness executes tools and checks permissions.
 
-Catalog presence means local selectability, **not verified account entitlement**. Names such as **GPT-6.1 Sol** are displayed as supplied by Pi, while requests retain the exact ID `gpt-6.1-sol`. There is no model substitution, Pi inference transport, API-key fallback or imported price configuration. Read the [catalog decision](<docs/adr/ADR-0001-use-pi-model-catalog.md>) and [model restrictions](<packages/plugin/docs/models.md>).
+## Requirements
 
-## Development
+- Node.js 24 (`nvm use`).
+- DeepSeek Harness `0.2.0-rc.2` or a later `0.2` release; development is pinned to the tested `0.2.0-rc.2` baseline.
+- A ChatGPT account eligible for the plan-sharing preview.
+- Browser and Harness host on the same machine, because the OAuth callback listens on `127.0.0.1`.
 
-Requires Node 24 and npm. Declared Harness runtime compatibility is `>=0.2.0-rc.2 <0.3.0-0`; the tested development baseline remains pinned to `0.2.0-rc.2`. Future releases within that range still require API and UI validation.
+## Install
+
+Build the package and install **the same tarball** in the target profile through Harness's native plugin manager. Keep the previous working tarball for rollback.
 
 ```sh
 nvm use
@@ -23,14 +38,86 @@ npm run check
 npm run pack:plugin
 ```
 
-The installable tarball is emitted in the repository root. Build, test and install **the same tarball** through the target profile's plugin manager. Read the [development guide](<docs/development.md>) and [plugin installation guide](<packages/plugin/README.md>).
+The commands above emit `dsh-chatgpt-plan-<version>.tgz` in the repository root.
 
-## Validation status
+**Windows Desktop**
 
-The recorded macOS Desktop/local Web results for **0.1.2 / 38 tests are historical**, not certification of the Pi catalog branch. On **Windows Desktop** the experimental release is validated end to end: installation by the bundled CLI, native loading, the remote/cache catalog, the panel and native selector, and a real `gpt-6.1-sol` request that returned HTTP 200 with a terminal `response.completed`. **macOS Desktop and Linux/Web have not been executed for this release**; the package is platform-neutral, but that is a static property, not a runtime result. Automated fixtures, catalog HTTP checks, installation and live inference are recorded separately in [validation evidence](<packages/plugin/docs/validation.md>) and the [deployment receipt](<docs/development.md>).
+```powershell
+& "$env:LOCALAPPDATA\Programs\DeepSeek Harness\resources\runtime\cli\bin\dsh.cmd" plugin --profile desktop add "C:\path\to\dsh-chatgpt-plan-0.1.5-pi-catalog.2.tgz"
+```
 
-The Windows `desktop` profile currently runs the experimental `0.1.5-pi-catalog.2` package, installed by the bundled CLI. Install the experimental artifact only after the complete checks; retain the previous tarball for rollback. A new package requires `restartHost` and a refresh of the **existing** UI at `http://127.0.0.1:19387`, not another server or a promise of HMR. See [diagnostics](<packages/plugin/docs/troubleshooting.md>).
+**macOS Desktop and local Web**
 
-Dependencies, generated code, build caches, distributable tarballs and credentials are excluded from Git. This repository originated from the clean `0.1.2` source delivery; subsequent changes are tracked in its commit history.
+```sh
+"/Applications/DeepSeek Harness.app/Contents/Resources/runtime/cli/bin/dsh" plugin --profile desktop add /absolute/path/dsh-chatgpt-plan-0.1.5-pi-catalog.2.tgz
+dsh plugin --profile web add /absolute/path/dsh-chatgpt-plan-0.1.5-pi-catalog.2.tgz
+```
 
-License: MIT.
+After installing, run the application's **restartHost** action and reload the existing UI. Source edits alone never change an installed profile. For a new custom Web profile, initialize it from the shipped Web template first; see the [plugin guide](<packages/plugin/README.md>).
+
+## Usage
+
+1. Open **Settings → Models → ChatGPT Plan** and choose **Continue with ChatGPT**.
+2. Complete the browser sign-in and authorize ChatGPT plan usage.
+3. Select a model under the native **ChatGPT Plan** provider in the conversation model selector.
+4. Use **Update models now** to refresh metadata without an inference request, and **View usage** in the sidebar to open ChatGPT's usage settings.
+
+Disconnecting revokes the remote grant and erases local tokens. To switch accounts, disconnect and choose **Change account**.
+
+## Model catalog
+
+- Every plugin activation loads a valid profile cache or the bundled snapshot, then checks Pi in the background. Startup never waits for the network.
+- Each check is bounded to **4 seconds**, **2 MiB** and **1,000 records**. Remote JSON is untrusted input and is validated before publication.
+- A valid response replaces the entire list, including a valid empty list. Errors retain the last valid list or the bundled snapshot and raise a catalog warning that is separate from authentication state.
+- The cache is stored per profile at `.cache/dsh-chatgpt-plan/pi-catalog-v1.json`, independently of OAuth grants.
+- `available` and `preferredModelAvailable` mean **locally selectable**, not verified account entitlement. OpenAI enforces access on the actual inference request.
+- Discovery never calls the OAuth `/v1/models` endpoint, and no model is added, aliased or substituted manually. See [models and restrictions](<packages/plugin/docs/models.md>).
+
+## Project layout
+
+| Path | Contents |
+| --- | --- |
+| [packages/plugin](<packages/plugin/>) | Plugin source, package documentation and third-party notices. |
+| [packages/plugin/src](<packages/plugin/src/>) | Host account management, Pi catalog and cache, Responses adapter, RPC service and Client UI. |
+| [packages/plugin/docs](<packages/plugin/docs/>) | Architecture, model restrictions, diagnostics and validation evidence. |
+| [scripts](<scripts/>) | Maintainer catalog snapshot generator and Typert preparation. |
+| [test](<test/>) | Protocol, native-service integration and React tree tests using fictional credentials. |
+| [docs](<docs/>) | Development guide and architecture decision records. |
+
+## Development
+
+```sh
+nvm use
+npm ci
+npm run check          # build Host, generated RPC and Client, then run the automated suite
+npm run typecheck      # static types
+npm run pack:plugin    # emit the installable tarball in the repository root
+```
+
+`npm run check` builds before testing. OAuth callback tests bind localhost and need a terminal that permits local listeners; they neither authenticate a real account nor perform live inference.
+
+Maintainers regenerate the bundled catalog snapshot from the same Pi service with `npm run catalog:snapshot`. Review the metadata diff and rerun the checks before packaging. See the [development guide](<docs/development.md>).
+
+## Compatibility and validation
+
+Runtime peer dependencies and the informational `engines.dsh` field declare `>=0.2.0-rc.2 <0.3.0-0`. The `-0` upper bound deliberately excludes every `0.3.0` prerelease. A permissive admission result is not an API compatibility guarantee; validate each new Harness release before relying on it.
+
+The automated suite and static types pass on Node 24, and the experimental release is validated end to end on **Windows Desktop**: installation through the bundled CLI, native loading, the remote and cache catalog paths, the Models panel, the native selector and a live `gpt-6.1-sol` request. **macOS Desktop and Linux/Web have not been executed for this release.** The package is platform-neutral — prebuilt JavaScript, pure-JavaScript dependencies, no `os`/`cpu` restriction and no native module — but that is a static property, not a runtime result.
+
+Automated fixtures, catalog HTTP checks, installation and live inference are recorded separately in the [validation evidence](<packages/plugin/docs/validation.md>).
+
+## Documentation
+
+| Document | Contents |
+| --- | --- |
+| [Plugin guide](<packages/plugin/README.md>) | Installation per platform, rollback and connection behavior. |
+| [Architecture](<packages/plugin/docs/architecture.md>) | Components, request boundaries, catalog lifecycle and credential races. |
+| [Models and restrictions](<packages/plugin/docs/models.md>) | Catalog semantics, capabilities and preview restrictions. |
+| [Diagnostics](<packages/plugin/docs/troubleshooting.md>) | Symptom-to-action tables for catalog, installation and authorization. |
+| [Validation](<packages/plugin/docs/validation.md>) | Version-scoped build, test and platform evidence. |
+| [Development guide](<docs/development.md>) | Repository layout, release procedure and compatibility policy. |
+| [ADR-0001](<docs/adr/ADR-0001-use-pi-model-catalog.md>) | Decision to use the Pi catalog as the single metadata source. |
+
+## License
+
+MIT. Bundled third-party notices, including the Pi model metadata attribution, are reproduced in [THIRD_PARTY_NOTICES.md](<packages/plugin/THIRD_PARTY_NOTICES.md>).
