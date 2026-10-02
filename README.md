@@ -65,9 +65,11 @@ After installing, run the application's **restartHost** action and reload the ex
 ## Usage
 
 1. Open **Settings → Models → ChatGPT Plan** and choose **Continue with ChatGPT**.
-2. Complete the browser sign-in and authorize ChatGPT plan usage.
+2. Complete the browser sign-in and authorize ChatGPT plan usage. The first connection shows a one-time confirmation that eligible requests use your plan.
 3. Select a model under the native **ChatGPT Plan** provider in the conversation model selector.
 4. Use **Update models now** to refresh metadata without an inference request, and **View usage** in the sidebar to open ChatGPT's usage settings.
+
+While a session is connected, the sidebar and the Models header state **Using ChatGPT plan**; the sign-in invitation is shown only when the profile is not connected.
 
 Disconnecting revokes the remote grant and erases local tokens. To switch accounts, disconnect and choose **Change account**.
 

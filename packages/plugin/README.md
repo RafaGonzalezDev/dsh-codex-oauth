@@ -74,9 +74,15 @@ The Web browser and Harness host must run on the same machine because the OAuth 
 
 ## Sidebar connection notice
 
-A connected account adds **ChatGPT plan connected** and **View usage** above the existing DeepSeek account launcher. The link opens [ChatGPT Settings → Usage](<https://chatgpt.com/settings/usage>) in a new tab. The collapsed sidebar uses a compact **GPT** link with an accessible label.
+A connected account adds **Using ChatGPT plan** and **View usage** above the existing DeepSeek account launcher. The link opens [ChatGPT Settings → Usage](<https://chatgpt.com/settings/usage>) in a new tab. The collapsed sidebar uses a compact **GPT** link with an accessible label.
 
-The notice shares the Models panel's connection state. It is hidden while disconnected or loading; a session requiring renewed authorization instead shows **ChatGPT reconnection required** and **Reconnect in Models**. It does not indicate that the currently selected model uses ChatGPT, display estimated remaining quota, or query internal usage endpoints. The detailed usage notice remains in Models.
+The notice shares the Models panel's connection state. It is hidden while disconnected or loading; a session requiring renewed authorization instead shows **ChatGPT reconnection required** and **Reconnect in Models**. It does not indicate that the currently selected model uses ChatGPT, display estimated remaining quota, or query internal usage endpoints. The detailed usage notice remains in Models. The Models header states **Using ChatGPT plan** while the session is connected and keeps the sign-in invitation otherwise.
+
+## First sign-in confirmation
+
+The first time a profile connects, the frame-wide overlay layer shows a blocking confirmation: eligible requests use the ChatGPT plan, with **Manage usage** and **Got it**. It appears only for an effective connection, never for a session that merely needs reconnection. Acknowledging it records the copy version in the browser, so later sign-ins and reloads do not show it again; bumping that version shows the current copy once more. When the browser storage is unavailable or blocked, the acknowledgement stays process-local and the confirmation is not lost.
+
+This Client ships without `react-dom`, so the confirmation renders inside the overlay layer instead of a body portal, and `aria-modal` with Tab containment stands in for root-inert ownership. Escape dismisses it and focus returns to the element that opened the session.
 
 ## Scope and validation
 

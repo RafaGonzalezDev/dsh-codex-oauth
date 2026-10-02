@@ -22,7 +22,7 @@ The Pi provider namespace does not configure a backend. The parser never imports
 - [Stream translation](<../src/response-stream.ts>) turns Responses SSE events into native blocks, deltas, usage and one terminal finish. Only `response.completed` is success. It never executes a tool.
 - [Responses adapter](<../src/adapter.ts>) owns the official OpenAI SDK request, with `maxRetries: 0`, `store: false`, streaming, native attribution headers and safe provider failure routing. Harness decides retries.
 - [RPC service](<../src/service.ts>) publishes five `chatgptPlan` methods: `getStatus`, cancelable streaming `authorize`, `cancel`, `disconnect`, and `refreshModels`. Public results contain no OAuth token values. `refreshModels` performs catalog network I/O without inference and reports catalog failures separately from authentication.
-- [Client](<../src/client/>) owns the Models footer, sidebar connection notice and account/catalog controls. Both surfaces share one token-free observable. No quota polling, second authentication flow or new catalog polling loop is introduced.
+- [Client](<../src/client/>) owns the Models footer, sidebar connection notice, first-sign-in confirmation and account/catalog controls. All surfaces share one token-free observable. No quota polling, second authentication flow or new catalog polling loop is introduced.
 
 The packaged distribution does not include the source tree or repository ADR/script; source links above describe repository ownership. Runtime consumers use the compiled package and bundled snapshot.
 
@@ -47,6 +47,8 @@ The panel repulls status when opened, on native connection resets and on existin
 The catalog region uses text for source/provenance, a shortened revision with a complete title, semantic timestamps, a polite live region for progress/warnings and a native button with visible focus. Catalog fallback is distinct from authentication alerts. Optional missing metadata has a compatibility placeholder. Empty/non-selectable lists explain the state and retain the explicit update action.
 
 The sidebar notice registers an additive `sidebar.footer.action` entry. On the pinned rc.2 shell this area precedes `sidebar.settings`, preserving the DeepSeek account launcher. It shows only a connected plan or reconnect-required state, never inferred quota or a claim that the selected model uses ChatGPT. Its usage link opens the official ChatGPT dashboard without credentials in the URL. Scoped wrapping gives it its own footer row; the collapsed rail uses an accessible text link. Reconnection remains in Models. The official sidebar package is a development-only type dependency. Quota wording and sidebar behavior are unchanged by the catalog work.
+
+The first-sign-in confirmation registers an additive `shell.overlay` entry, the frame-wide floating layer the shell already uses for its own quota host, so the confirmation outlives the Models panel that started the sign-in. This Client ships without `react-dom`, so the surface renders inside that layer instead of a body portal; `aria-modal` plus Tab containment stands in for the root-inert ownership the portal-based onboarding modal relies on. Acknowledgement is a versioned client-local value keyed by profile, so an effective connection shows the confirmation once and a reconnection never does. The acknowledgement is not part of the native grant record and never crosses RPC.
 
 ## Credentials and races
 
