@@ -12,3 +12,6 @@ packages/.build/
 .DS_Store
 .env.*
 !.env.example
+
+# Local deployment receipts: machine-specific evidence, never published.
+*.local.md

@@ -80,4 +80,4 @@ The adapter preserves native text, exposed reasoning summaries, local tool decla
 
 The plan-sharing preview restricts request parameters and OpenAI-hosted tools. Read [restrictions and model capabilities](<docs/models.md>) before relying on auxiliary generation hints or hosted API tools.
 
-See [architecture](<docs/architecture.md>), [diagnostics](<docs/troubleshooting.md>), and [validation evidence](<docs/validation.md>). Automated protocol tests and successful package loading are separate from live account authorization and inference. User-confirmed access through Pi with a Pro 5x account is not a completed live test of this DSH plugin.
+See [architecture](<docs/architecture.md>), [diagnostics](<docs/troubleshooting.md>), and [validation evidence](<docs/validation.md>). Automated protocol tests and successful package loading are separate from live account authorization and inference. Independent confirmation of access through Pi is not a completed live test of this DSH plugin.

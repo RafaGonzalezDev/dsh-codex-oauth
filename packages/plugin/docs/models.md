@@ -8,7 +8,7 @@ The exact Pi `name` is the display label, including its original capitalization:
 
 The Models panel and the native composer selector list the catalog **newest first**, so the most recent generation such as **GPT-6.1 Sol** appears at the top. This is a presentation projection over Pi's exact source order: the catalog, the profile cache and the bundled snapshot keep Pi's order, and the projection never renames, adds, removes, aliases or substitutes a model. Changing the remote order therefore changes the displayed order, and no model is pinned to a fixed position.
 
-A model marked `available` and `preferredModelAvailable` in public status is **selectable in the local catalog**, not verified for the current account. Pi publishes shared metadata, not entitlement. OpenAI checks account access on a real inference request. User-confirmed Pi access with a Pro 5x account does not establish a successful live request through this updated DSH plugin.
+A model marked `available` and `preferredModelAvailable` in public status is **selectable in the local catalog**, not verified for the current account. Pi publishes shared metadata, not entitlement. OpenAI checks account access on a real inference request. Independent confirmation of Pi access does not establish a successful live request through this updated DSH plugin.
 
 ## Updates, cache and empty lists
 

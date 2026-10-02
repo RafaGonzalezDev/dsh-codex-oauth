@@ -4,7 +4,7 @@ This repository was initialized from the clean dsh-chatgpt-plan 0.1.2 source arc
 
 ## Experimental worktree
 
-Develop **`0.1.5-pi-catalog.2`** on `feature/pi-model-catalog` in `C:\Users\rafat\Desktop\Code\dsh-codex-oauth`. Keep `main` unchanged and push only that branch. No installed DSH ASAR/core or Pi/WSL files are part of this change.
+Develop **`0.1.5-pi-catalog.2`** on `feature/pi-model-catalog` in your local checkout. Keep `main` unchanged and push only that branch. No installed DSH ASAR/core or Pi/WSL files are part of this change.
 
 Pi is the single model metadata source. OAuth, native credentials, direct OpenAI Responses inference and native Harness interfaces remain separate. See [ADR-0001](<adr/ADR-0001-use-pi-model-catalog.md>) for the decision and rejected alternatives.
 
@@ -51,56 +51,20 @@ The Host bounds each catalog fetch to 4 seconds, 2 MiB and 1,000 records. Runtim
 The initial target is the real `~/.dsh/profiles/desktop` profile with plugin `0.1.4`. After complete checks and packaging, install the **same experimental tarball** through the Windows global bundled CLI:
 
 ```powershell
-& "$env:LOCALAPPDATA\Programs\DeepSeek Harness\resources\runtime\cli\bin\dsh.cmd" plugin --profile desktop add "C:\Users\rafat\Desktop\Code\dsh-codex-oauth\dsh-chatgpt-plan-0.1.5-pi-catalog.2.tgz"
+& "$env:LOCALAPPDATA\Programs\DeepSeek Harness\resources\runtime\cli\bin\dsh.cmd" plugin --profile desktop add "C:\path\to\dsh-chatgpt-plan-0.1.5-pi-catalog.2.tgz"
 ```
 
 Use **restartHost**, then refresh the existing `http://127.0.0.1:19387` UI. Do not launch a replacement server, promise HMR or patch the installed application. Check the source badge, exact human names/IDs, empty/fallback feedback and native selector; then obtain distinct live-inference evidence if a real request is authorized.
 
 For rollback, reinstall the retained `0.1.4` tarball through the same CLI and profile, then restartHost and refresh the same URL. Preserve OAuth credentials and both artifacts/digests. A catalog rollback is not a reason to delete the native credential store. The upgrade ignores legacy model lists stored alongside an existing grant while preserving the grant itself.
 
-Keep the [build-time validation record](<../packages/plugin/docs/validation.md>) separate from the post-build receipt below. User-confirmed Pi access on a Pro 5x account is external evidence, not a successful request from this plugin.
+## Release validation records
 
-### Deployment receipt: 0.1.5-pi-catalog.2
+Keep the [build-time validation record](<../packages/plugin/docs/validation.md>) separate from per-deployment evidence. Record artifact digests, installation results and live-inference evidence in a local receipt file that is excluded from Git, never in the published documentation: deployment receipts carry machine-specific paths, process identifiers, local backup directories and account state that do not belong in the package.
 
-Recorded on 2026-10-02 (Europe/Madrid). This release only changes the order in which the Models panel and the native composer selector present the catalog; it does not change discovery, credentials, transport or inference.
+Independent confirmation of access through Pi is external evidence, not a successful request from this plugin.
 
-| Check | Evidence |
-| --- | --- |
-| Source | `feature/pi-model-catalog` at `a635493a`, on top of the `512af4a` catalog commit. `main` remains `91d627f6`; no ASAR/core or Pi/WSL change. |
-| Change | The exposed selection view is reversed so the newest generation is offered first. The catalog, the profile cache and the bundled snapshot keep Pi's exact source order; nothing is renamed, added, removed, aliased or substituted. |
-| Build and regression tests | Windows Node **24.21.0**; `npm run check` **139/139 passed**, no failures, cancellations or skips; types correct. |
-| Candidate artifact | `dsh-chatgpt-plan-0.1.5-pi-catalog.2.tgz`, **239538 bytes**, **38 files**; SHA-256 `0b2aa12ec7e6ea05523da4153ad61333515d63ae66e8d485ad02de61749cf51b`; npm shasum `709f027a6d143726e1c807d04de0649a964b30bd`. |
-| Rollback | `0.1.4` tarball retained, SHA-256 `2485f414eae8d5ac565db6b23f1cc910572c168db1301d61fe8a1e02faee8131`; the `0.1.5-pi-catalog.1` artifact is also kept. |
-| Installation metadata backup | `~/.dsh/backups/chatgpt-plan-before-pi-catalog-2-20261002-0059`: only `package.json`, `pnpm-lock.yaml`, `pnpm-workspace.yaml`. No credential backup/export. |
-| Desktop installation | Global bundled CLI command exited **0**. The real desktop profile now resolves `0.1.5-pi-catalog.2`. **38/38 installed files** compared byte-for-byte by SHA-256 with the archive. |
-| Installed selection order | **Verified with the installed artifact:** the native probe reported the session `connected`, **9 models**, same revision `63334bb2…`, no catalog warning, and the exact order `gpt-6.1-sol`, `gpt-6-sol`, `gpt-6-luna`, `gpt-6-astra`, `gpt-5.6-terra`, `gpt-5.6-sol`, `gpt-5.6-luna`, `gpt-5.5`, `gpt-5.3-codex-spark`. Zero inference and zero OAuth requests were made. |
-| Running Desktop Host / GUI | **Confirmed by the owner after the Host restart:** the existing `http://127.0.0.1:19387` UI shows the newest-first order in the Models panel and in the native composer selector, with GPT-6.1 Sol first. No replacement server or authentication bypass was used. |
-| Platform coverage | **Windows Desktop only.** Installation, native load, catalog refresh/cache, selection order and a live `gpt-6.1-sol` request were executed on Windows. **macOS Desktop and Linux/Web were not executed for `0.1.5-pi-catalog.2`.** The package is platform-neutral — prebuilt JavaScript, pure-JavaScript dependencies, no `os`/`cpu` restriction, no native module and no platform-specific branch — and the `0.1.2` baseline was validated on macOS, but no runtime result exists for this release on those platforms. |
-
-### Deployment receipt: 0.1.5-pi-catalog.1
-
-Build/install recorded on 2026-10-01; restart, corrected native-account verification and live inference recorded on 2026-10-02 (Europe/Madrid). No commits, pushes or core changes were made.
-
-| Check | Evidence |
-| --- | --- |
-| Source | `feature/pi-model-catalog`, based on `91d627f6141997eb99bf4dc70d15b413215acb74`; stable `main` checkout remains clean. |
-| Build and regression tests | Windows Node **24.21.0**; `npm run check` **136/136 passed**, no failures, cancellations or skips; `npm run typecheck` passed. |
-| Public Pi snapshot | `npm run catalog:snapshot -- --check` passed against the real service, **9 models**. Exact `gpt-6.1-sol` / `GPT-6.1 Sol` retained. |
-| Candidate artifact | [dsh-chatgpt-plan-0.1.5-pi-catalog.1.tgz](<../dsh-chatgpt-plan-0.1.5-pi-catalog.1.tgz>), **238632 bytes**, **38 files**; no credentials, environment files, tests, `node_modules` or audit scratch files in the tarball. |
-| Candidate SHA-256 | `4a4470402b3bc8b5b79f9c6bdbc44a9d8f67b026520467ddb106d41c25a1d35f` |
-| Rollback | Existing `dsh-codex-oauth/dsh-chatgpt-plan-0.1.4.tgz` retained, SHA-256 `2485f414eae8d5ac565db6b23f1cc910572c168db1301d61fe8a1e02faee8131`. |
-| Installation metadata backup | `~/.dsh/backups/chatgpt-plan-before-pi-catalog-20261001-2347`: only `package.json`, `pnpm-lock.yaml`, `pnpm-workspace.yaml`. No credential backup/export. |
-| Desktop installation | Global bundled CLI command above exited **0**. Real desktop manifest now names the exact candidate tarball. **38/38 installed files** compared byte-for-byte by SHA-256 with the archive. |
-| Native dependency diagnostic | `pnpm peers check` reports missing local peers because profile `node_modules` does not contain the runtime's shared packages. All **9 Host peers** exist in the immutable Desktop runtime and satisfy their declared ranges. Electron uses Node **24.18.1**. React is provided separately by the Client shell, not asserted from Host `node_modules`. No duplicate core packages or version exemptions installed. |
-| Installed package native load | **Verified** with the shared runtime and the real desktop profile: the exact installed `0.1.5-pi-catalog.1` loaded through the native credentials, authorization and LLM services and reported `catalog.source = "pi"` with no unhandled failure. This exercises the installed artifact, not the already-running GUI Host. |
-| Public catalog refresh and cache | **Verified in the real profile:** the activation check moved `bundled` to `remote` at revision `63334bb2d0308eacbc238f7b5b5c88adec1e5a86f818ae76d001f70137917942` with `refreshing: false` and no warning; a later start loaded `cache` first and refreshed again. `~/.dsh/profiles/desktop/.cache/dsh-chatgpt-plan/pi-catalog-v1.json` holds only public model metadata, source identity, timestamps and ETag — no token, header or account field. |
-| Deployed Host and Client artifacts | **Verified in the installed copies:** `lib/index.js` references the fixed Pi catalog URL and the catalog module; `lib/client.js` contains every user-visible catalog label (`Pi catalog`, `Revision`, `Last checked`, `Last updated`, `Not yet recorded`, `Update models now`, empty-catalog and failure messages) and the exact `GPT-6.1 Sol` name; `lib/typert.remote-client.js` exposes the token-free `getStatus`/`refreshModels` surface. The source URL stays Host-side, so the Client bundle does not carry it. |
-| Manual catalog refresh | **Verified against the real endpoint with the installed package:** `refreshModels` issued **exactly one** GET to the fixed public URL, moved the catalog from `cache` to `remote`, reported `refreshing: false` with no warning and advanced `lastCheckedAt`. This initial public-only check used the temporary probe's profile-local store (not Desktop's actual shared account store), which stayed `disconnected`, with **zero** inference and **zero** OAuth requests. The catalog/cache path and installed service were correct; the account-location correction is recorded below. |
-| Existing account state | **Connected, verified with the correct native store:** Desktop's base configuration mounts `LocalCredentialProvider` with its default `$DSH_HOME/.credentials.yaml`, not a profile-local file. The original temporary probe incorrectly specified a profile-local store; its empty enumeration and `disconnected` result did **not** describe Desktop's account. That earlier conclusion is withdrawn. After removing the probe's path override, the installed plugin reports `connected`, **9 models** and exact `GPT-6.1 Sol`; cache-to-remote refresh completes without warning. No raw credential document was inspected or exported. |
-| Running Desktop Host / GUI | **Restart confirmed:** the old supervisor has been replaced by PID 27940, created on 2026-10-02 at **00:32:08**, with a new child Host PID 10056 at **00:32:44**, after installation. The user confirmed the restart. **Visual verification passed with two user-provided screenshots and explicit user approval:** the actual Models panel shows `Update models now`, the metadata/access disclaimer, all **9 exact human names and IDs**, modalities and the existing usage link. The sidebar shows `ChatGPT plan connected`. The second screenshot shows all **9 official model names** under `ChatGPT Plan` in the native composer selector, with **GPT-6.1 Sol selected**. The source/revision/date section is above the visible scroll region and is not claimed as directly observed in these screenshots; its data was independently verified through native status. `dsh --profile desktop --dump-config` refuses with `profile "desktop" is managed exclusively by the Electron application`; unauthenticated access to the existing URL returns 401. No replacement server, authentication bypass or HMR assumption was used. |
-| Live direct Responses request | **Passed:** the exact installed `0.1.5-pi-catalog.1` ran through official native credential/authorization/LLM services using the default shared store and the desktop profile. Exactly **one POST** to `https://api.openai.com/v1/responses`, exact model **`gpt-6.1-sol`**, only prompt **`Responde solo OK.`**, no tools/private history/substitution/retry/API-key fallback. Result: **HTTP 200**, text **`OK`**, terminal **`response.completed`** independently observed, successful native finish, no safe failure code; the session remains **connected**. This is an installed-artifact native probe, not a browser-driven chat test. |
-
-The receipt is repository-only: do not repack the same version merely to update these post-build results. This keeps the installed artifact and its recorded digest unchanged.
+Do not repack a released version merely to update its deployment results; keep the installed artifact and its recorded digest paired.
 
 ## Harness compatibility policy
 

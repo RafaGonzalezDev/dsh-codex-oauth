@@ -5,7 +5,7 @@
 
 ## Context
 
-The ChatGPT Plan plugin used an OAuth account `/v1/models` list with a small reviewed capability baseline. That list can omit a model even when the user has independently confirmed real access through Pi with a Pro 5x account. The absence of a shared catalog entry and authorization to run inference are different facts. Neither a catalog lookup nor the user's Pi result is a live test of this DSH adapter.
+The ChatGPT Plan plugin used an OAuth account `/v1/models` list with a small reviewed capability baseline. That list can omit a model even when the same account has independently confirmed real access through Pi. The absence of a shared catalog entry and authorization to run inference are different facts. Neither a catalog lookup nor the user's Pi result is a live test of this DSH adapter.
 
 We need current human-readable names and exact request identifiers without a hand-maintained model list, a Pi runtime dependency or an update of the whole plugin for each new model. The plugin must retain direct OAuth Responses requests to `api.openai.com`, existing scopes/native credentials, native Harness model/tool interfaces and explicit provider errors. It must not adopt Codex transport, imported pricing, API keys or automatic model substitution.
 
