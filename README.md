@@ -11,6 +11,13 @@ A native **DeepSeek Harness** plugin that connects a ChatGPT plan account throug
 
 ![The Models panel and the native composer selector listing the Pi catalog under ChatGPT Plan, newest first, with the sidebar connection notice](<docs/assets/native-model-selector.png>)
 
+## Disclaimer
+
+- **Usage limits are enforced by OpenAI, not by this plugin.** ChatGPT plan usage through third-party applications is governed by the *Sign in with ChatGPT* preview and by limits that OpenAI sets and can change.
+- **The permitted usage you configure in ChatGPT does not remove app-specific limits.** Even with usage set to 100% for this application, OpenAI can apply limits that are specific to third-party applications or to a short rolling window. A turn can therefore fail with a quota error while ChatGPT still reports remaining weekly capacity.
+- **The plugin never changes the billing path.** Quota and rate-limit failures are surfaced as they arrive: no API-key fallback, no model substitution and no inferred reset time.
+- **This is experimental software built on a preview feature.** Model metadata, limits and availability can change, degrade or stop working without notice, and no compatibility or availability guarantee is provided.
+
 ## How it works
 
 - **Sign-in.** OAuth 2.0 with PKCE through the browser, using the ChatGPT plan-sharing preview and a loopback callback on `127.0.0.1`.

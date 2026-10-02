@@ -8,6 +8,10 @@ Declared Harness compatibility: **`>=0.2.0-rc.2 <0.3.0-0`**. Historical tested b
 
 All DSH runtime peer dependencies and the informational `engines.dsh` field use this bounded range. DSH includes prereleases when checking peers, so the `-0` upper bound deliberately excludes every `0.3.0` prerelease as well as the stable release. Development dependencies remain pinned to `0.2.0-rc.2` for reproducible builds. This range permits loading later `0.2` releases; it does not certify untested API or UI compatibility. Validate each new Harness release before relying on it, especially release candidates. No version exemptions are required or installed.
 
+## Usage limits and preview status
+
+ChatGPT plan usage is governed by OpenAI, not by this plugin. Even when the permitted usage for this application is configured at 100% in ChatGPT settings, OpenAI can apply limits that are specific to third-party applications or to a short rolling window, so a request can fail with a quota error while ChatGPT still reports remaining weekly capacity. The plugin reports those failures without switching billing paths, substituting models or inferring a reset time. The plan-sharing preview and this experimental plugin can change, degrade or stop working without notice.
+
 ## Installation
 
 Build and test the experimental package first, and install the **same tarball** on the target platform. Keep the previous working tarball for rollback. Source edits alone do not change an installed profile.
