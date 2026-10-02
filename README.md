@@ -15,8 +15,12 @@ A native **DeepSeek Harness** plugin that connects a ChatGPT plan account throug
 
 - **Usage limits are enforced by OpenAI, not by this plugin.** ChatGPT plan usage through third-party applications is governed by the *Sign in with ChatGPT* preview and by limits that OpenAI sets and can change.
 - **The permitted usage you configure in ChatGPT does not remove app-specific limits.** Even with usage set to 100% for this application, OpenAI can apply limits that are specific to third-party applications or to a short rolling window. A turn can therefore fail with a quota error while ChatGPT still reports remaining weekly capacity.
-- **The plugin never changes the billing path.** Quota and rate-limit failures are surfaced as they arrive: no API-key fallback, no model substitution and no inferred reset time.
+- **The plugin never changes the billing path.** Quota and rate-limit failures are surfaced as they arrive: no API-key fallback, no model substitution and no inferred reset time. See [known issues](#known-issues) for a reported instance of this behavior.
 - **This is experimental software built on a preview feature.** Model metadata, limits and availability can change, degrade or stop working without notice, and no compatibility or availability guarantee is provided.
+
+## Known issues
+
+- **An app-specific limit can remain at its original value after the weekly usage resets (external, open).** A connection created through the *Sign in with ChatGPT* preview can keep failing with `subscription_sharing_usage_limit_exceeded` (429, "ChatGPT usage limit for this app") while ChatGPT reports that weekly capacity has reset. It was reported to OpenAI and acknowledged as specific to the *Sign in with ChatGPT* route, and it does not affect Codex usage. This plugin classifies the code as `QUOTA` and never infers a reset time; it never changes the billing path either, so the limit cannot be cleared from inside the plugin. See [diagnostics](<packages/plugin/docs/troubleshooting.md>) for the entry.
 
 ## How it works
 

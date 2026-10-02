@@ -12,6 +12,8 @@ All DSH runtime peer dependencies and the informational `engines.dsh` field use 
 
 ChatGPT plan usage is governed by OpenAI, not by this plugin. Even when the permitted usage for this application is configured at 100% in ChatGPT settings, OpenAI can apply limits that are specific to third-party applications or to a short rolling window, so a request can fail with a quota error while ChatGPT still reports remaining weekly capacity. The plugin reports those failures without switching billing paths, substituting models or inferring a reset time. The plan-sharing preview and this experimental plugin can change, degrade or stop working without notice.
 
+**Known issue, external and open.** An app-specific limit can remain at its original value after the weekly usage resets: the connection keeps failing with `subscription_sharing_usage_limit_exceeded` (429) while ChatGPT reports that capacity has reset. It was reported to OpenAI and acknowledged as specific to the Sign in with ChatGPT route, and it does not affect Codex usage. This plugin surfaces the failure as `QUOTA` and never changes the billing path, so the limit cannot be cleared from inside the plugin; see [diagnostics](<docs/troubleshooting.md>).
+
 ## Installation
 
 Build and test the experimental package first, and install the **same tarball** on the target platform. Keep the previous working tarball for rollback. Source edits alone do not change an installed profile.

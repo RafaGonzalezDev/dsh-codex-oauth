@@ -48,4 +48,6 @@ OpenAI-hosted web search, file search, code interpreter, image generation, hoste
 
 Only the documented signed ChatGPT grant is used. API-key billing is never selected automatically. Account/app usage limits and eligibility restrictions are surfaced explicitly, with a link to ChatGPT usage settings. No reset time is inferred.
 
+One external issue affecting app-specific limits is recorded in [diagnostics](<troubleshooting.md>): the limit can remain at its original value after the weekly usage resets, so requests keep failing with `subscription_sharing_usage_limit_exceeded` even though ChatGPT reports reset capacity.
+
 Sources: [Pi catalog](<https://pi.dev/api/models/providers/openai-codex?types=chat>), [OpenAI inference contract](<https://developers.openai.com/siwc/token-sharing-open-source/models-and-inference>), [preview limitations](<https://developers.openai.com/siwc/token-sharing-open-source/preview-limitations>), [errors and recovery](<https://developers.openai.com/siwc/token-sharing-open-source/errors-and-recovery>). The OpenAI discovery description is not the source used by this experimental catalog implementation.
