@@ -4,7 +4,9 @@ import type {} from '@deepseek-ai/dsh-client-ui-renderer/client';
 import type {} from '@deepseek-ai/dsh-client-connection/client';
 import { TYPERT_REMOTE } from 'dsh-chatgpt-plan/remote';
 import { ConnectionPanel, type PanelInjected, type PanelState } from './Panel.tsx';
+import { ChatGPTPlanOnboarding } from './OnboardingOverlay.tsx';
 import { ChatGPTSidebarNotice } from './SidebarNotice.tsx';
+import { ONBOARDING_COPY_VERSION, ONBOARDING_SLOT_ID, readAcknowledgedVersion, writeAcknowledgedVersion } from './onboarding.ts';
 import { styles } from './styles.ts';
 import { en } from './locales.ts';
 
@@ -38,6 +40,10 @@ function applyPanel(ctx: Context): void {
     const { status: _status, ...retained } = snapshot;
     publish({ ...retained, message: en.failed });
   };
+  // The acknowledgement is per profile: a profile change re-reads its own copy version.
+  const acknowledgedVersionFor = (profile: string) => snapshot.status?.profile === profile && snapshot.acknowledgedCopyVersion !== undefined
+    ? snapshot.acknowledgedCopyVersion
+    : readAcknowledgedVersion(profile);
   const read = async () => {
     const version = ++refreshVersion;
     try {
@@ -45,7 +51,7 @@ function applyPanel(ctx: Context): void {
       if (version !== refreshVersion) return;
       if (result.ok) {
         const { message, catalogMessage: _catalogMessage, ...retained } = snapshot;
-        publish({ ...retained, status: result.value, ...(message && message !== en.failed ? { message } : {}) });
+        publish({ ...retained, status: result.value, acknowledgedCopyVersion: acknowledgedVersionFor(result.value.profile), ...(message && message !== en.failed ? { message } : {}) });
       }
       else readFailed();
     } catch { if (version === refreshVersion) readFailed(); }
@@ -107,16 +113,28 @@ function applyPanel(ctx: Context): void {
       } else publish({ ...snapshot, updatingModels: false, catalogMessage: en.catalogFailed });
     } catch { publish({ ...snapshot, updatingModels: false, catalogMessage: en.catalogFailed }); }
   };
+  const acknowledgeOnboarding = () => {
+    const profile = snapshot.status?.profile;
+    if (!profile) return;
+    writeAcknowledgedVersion(profile, ONBOARDING_COPY_VERSION);
+    publish({ ...snapshot, acknowledgedCopyVersion: ONBOARDING_COPY_VERSION });
+  };
   const injected = (): PanelInjected => ({
     hooks: { connection }, local: ['127.0.0.1', 'localhost', '[::1]'].includes(window.location.hostname) || 'dshDesktop' in globalThis,
     connect: value => { void connect(value); }, cancel: () => { void cancel(); },
     disconnect: () => { void disconnect(); }, refresh: () => { void refresh(); },
+    acknowledgeOnboarding,
   });
   ctx.slots.inject('settings.models.footer', () => ctx.slots.register({ name: 'settings.models.footer', id: 'chatgpt-plan', order: 10, inject: injected }, ConnectionPanel));
   ctx.slots.inject('sidebar.footer.action', () => ctx.slots.register({
     name: 'sidebar.footer.action', id: 'chatgpt-plan', order: 10,
     inject: () => ({ hooks: { connection } }),
   }, ChatGPTSidebarNotice));
+  // Frame-wide layer: the confirmation outlives the Models panel that started the sign-in.
+  ctx.slots.inject('shell.overlay', () => ctx.slots.register({
+    name: 'shell.overlay', id: ONBOARDING_SLOT_ID, order: 100,
+    inject: () => ({ hooks: { connection }, acknowledgeOnboarding }),
+  }, ChatGPTPlanOnboarding));
   ctx.effect(() => {
     const style = document.createElement('style'); style.dataset.plugin = 'dsh-chatgpt-plan'; style.textContent = styles;
     document.head.appendChild(style); return () => style.remove();

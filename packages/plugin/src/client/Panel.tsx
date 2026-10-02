@@ -11,6 +11,8 @@ export interface PanelState {
   authorizationUrl?: string;
   updatingModels?: boolean;
   catalogMessage?: string;
+  /** Copy version of the first-sign-in confirmation this profile already acknowledged. */
+  acknowledgedCopyVersion?: number | undefined;
 }
 export interface PanelInjected {
   hooks: { connection: HostObservable<PanelState> };
@@ -19,6 +21,7 @@ export interface PanelInjected {
   cancel(): void;
   disconnect(): void;
   refresh(): void;
+  acknowledgeOnboarding(): void;
 }
 type PanelProps = PropsRuntime<'settings.models.footer'> & InjectFace<PanelInjected>;
 

@@ -138,7 +138,7 @@ test('the Client is a native lazy-CJS factory and imports neither secrets nor No
   runInNewContext(source, { window: { __ModuleLoader__: { load: (value: unknown) => { contribution = value; } } } });
   assert.equal(contribution.id, 'dsh-chatgpt-plan');
   const requested: string[] = []; const client = contribution.factory((name: string) => { requested.push(name); return require(name); });
-  assert.deepEqual(requested, ['react/jsx-runtime']); assert.equal(typeof client.apply, 'function');
+  assert.deepEqual([...requested].sort(), ['react', 'react/jsx-runtime']); assert.equal(typeof client.apply, 'function');
   assert.deepEqual([...client.inject], ['slots', 'remote']);
   for (const forbidden of ['node:crypto', 'node:http', 'accessToken', 'refreshToken', 'auth.openai.com']) assert.equal(source.includes(forbidden), false);
 });
@@ -187,16 +187,19 @@ test('the compiled Client shares sidebar and Models state across Host updates an
   const subscriptions: (() => void)[] = [];
   try {
     await new Promise(resolve => setImmediate(resolve));
-    assert.deepEqual([...registrations.keys()].sort(), ['settings.models.footer:chatgpt-plan', 'sidebar.footer.action:chatgpt-plan']);
-    assert.deepEqual(injectedSlots.sort(), ['settings.models.footer', 'sidebar.footer.action']);
+    assert.deepEqual([...registrations.keys()].sort(), ['settings.models.footer:chatgpt-plan', 'shell.overlay:chatgpt-plan-onboarding', 'sidebar.footer.action:chatgpt-plan']);
+    assert.deepEqual(injectedSlots.sort(), ['settings.models.footer', 'shell.overlay', 'sidebar.footer.action']);
     const panel = registrations.get('settings.models.footer:chatgpt-plan')!;
     const sidebar = registrations.get('sidebar.footer.action:chatgpt-plan')!;
-    assert.equal(panel.options.order, 10); assert.equal(sidebar.options.order, 10);
-    assert.equal(typeof panel.component, 'function'); assert.equal(typeof sidebar.component, 'function');
+    const overlay = registrations.get('shell.overlay:chatgpt-plan-onboarding')!;
+    assert.equal(panel.options.order, 10); assert.equal(sidebar.options.order, 10); assert.equal(overlay.options.order, 100);
+    assert.equal(typeof panel.component, 'function'); assert.equal(typeof sidebar.component, 'function'); assert.equal(typeof overlay.component, 'function');
     assert.notEqual(panel.component, sidebar.component);
-    const panelProps = panel.options.inject(); const sidebarProps = sidebar.options.inject();
+    assert.notEqual(overlay.component, panel.component); assert.notEqual(overlay.component, sidebar.component);
+    const panelProps = panel.options.inject(); const sidebarProps = sidebar.options.inject(); const overlayProps = overlay.options.inject();
     const observable = panelProps.hooks.connection;
     assert.equal(sidebarProps.hooks.connection, observable);
+    assert.equal(overlayProps.hooks.connection, observable);
     assert.equal(observable.getSnapshot().status.state, 'connected');
     let panelUpdates = 0; let sidebarUpdates = 0;
     subscriptions.push(observable.subscribe(() => { panelUpdates++; }));
@@ -231,6 +234,8 @@ test('the compiled Client shares sidebar and Models state across Host updates an
     assert.equal(sidebarProps.hooks.connection.getSnapshot().status.state, 'disconnected');
     assert.equal(observable.getSnapshot().busy, false);
     assert.ok(panelUpdates > 1); assert.equal(sidebarUpdates, panelUpdates);
+    overlayProps.acknowledgeOnboarding();
+    assert.equal(observable.getSnapshot().acknowledgedCopyVersion, 1);
   } finally { for (const unsubscribe of subscriptions) unsubscribe(); await instance.dispose(); }
   assert.equal(hostListeners.size, 0);
 });

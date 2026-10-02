@@ -34,4 +34,17 @@ div:has(> .chatgpt-plan-sidebar) { flex-wrap: wrap; }
 .chatgpt-plan-panel small { flex-basis: 100%; }
 .chatgpt-plan-panel footer { border-top: 1px solid #7773; padding-top: 12px; font-size: 12px; opacity: .8; }
 .chatgpt-plan-notice { border-left: 3px solid #b58b34; padding-left: 10px; }
+
+/* First-sign-in confirmation. It lives in the frame-wide overlay layer, so it needs no
+   portal; the surface, elevation and focus ring reuse the shell's own tokens. */
+.chatgpt-plan-overlay { position: fixed; inset: 0; z-index: 1300; display: flex; align-items: center; justify-content: center; padding: 24px; background: var(--dsw-alias-bg-mask-1, #00000080); }
+.chatgpt-plan-dialog { box-sizing: border-box; width: min(440px, 100%); padding: 20px; border: .5px solid var(--dsw-alias-border-l4, #7775); border-radius: var(--dsw-radius-lg, 16px); background: var(--dsw-alias-bg-layer-1, Canvas); box-shadow: var(--dsw-elevation-prominent, 0 16px 48px #0006); color: var(--dsw-alias-label-primary, CanvasText); }
+.chatgpt-plan-dialog h2 { margin: 0 0 8px; font-size: 15px; font-weight: 500; line-height: 22px; }
+.chatgpt-plan-dialog p { margin: 0 0 16px; color: var(--dsw-alias-label-secondary); font-size: 13px; line-height: 20px; }
+.chatgpt-plan-dialog-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 12px; }
+.chatgpt-plan-dialog button { border: 1px solid transparent; border-radius: 8px; padding: 8px 16px; font: inherit; cursor: pointer; }
+.chatgpt-plan-dialog-primary { background: var(--dsw-alias-button-primary-fill, #101010); color: var(--dsw-alias-label-primary-foreground, #fff); }
+.chatgpt-plan-dialog a { color: var(--dsw-alias-label-secondary); text-decoration: underline; text-underline-offset: 3px; }
+.chatgpt-plan-dialog a:hover { color: var(--dsw-alias-label-primary); }
+.chatgpt-plan-dialog button:focus-visible, .chatgpt-plan-dialog a:focus-visible { outline: var(--dsw-focus-ring-width, 2px) solid var(--dsw-focus-ring-color, var(--dsw-alias-brand-primary, currentColor)); outline-offset: 2px; }
 `;

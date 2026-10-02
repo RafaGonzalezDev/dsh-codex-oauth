@@ -1,6 +1,6 @@
 {
   "name": "dsh-chatgpt-plan",
-  "version": "0.1.5-pi-catalog.2",
+  "version": "0.1.6-plan-usage.1",
   "description": "ChatGPT plan sign-in and Responses adapter for DeepSeek Harness",
   "license": "MIT",
   "type": "module",
@@ -65,6 +65,7 @@
       "platform": "web",
       "inject": [
         "@deepseek-ai/dsh-api-remotes",
+        "@deepseek-ai/dsh-client-ui-layout",
         "@deepseek-ai/dsh-client-ui-renderer",
         "@deepseek-ai/dsh-client-ui-settings-models"
       ]
@@ -86,6 +87,7 @@
     "@deepseek-ai/dsh-app-boot": "0.2.0-rc.2",
     "@deepseek-ai/dsh-client-connection": "0.2.0-rc.2",
     "@deepseek-ai/dsh-client-store": "0.2.0-rc.2",
+    "@deepseek-ai/dsh-client-ui-layout": "0.2.0-rc.2",
     "@deepseek-ai/dsh-client-ui-renderer": "0.2.0-rc.2",
     "@deepseek-ai/dsh-client-ui-settings-models": "0.2.0-rc.2",
     "@deepseek-ai/dsh-client-ui-sidebar": "0.2.0-rc.2",
