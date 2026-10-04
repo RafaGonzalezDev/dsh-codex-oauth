@@ -1,6 +1,6 @@
 {
   "name": "dsh-chatgpt-plan",
-  "version": "0.1.6-plan-usage.1",
+  "version": "0.1.7-plan-usage.1",
   "description": "ChatGPT plan sign-in and Responses adapter for DeepSeek Harness",
   "license": "MIT",
   "type": "module",

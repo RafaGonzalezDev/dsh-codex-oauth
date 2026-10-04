@@ -1,6 +1,6 @@
 {
   "name": "dsh-chatgpt-plan-workspace",
-  "version": "0.1.6-plan-usage.1",
+  "version": "0.1.7-plan-usage.1",
   "private": true,
   "type": "module",
   "license": "MIT",
