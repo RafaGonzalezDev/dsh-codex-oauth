@@ -76,7 +76,7 @@ The Web browser and Harness host must run on the same machine because the OAuth 
 
 ## Sidebar connection notice
 
-A connected account adds **Using ChatGPT plan** and **View usage** above the existing DeepSeek account launcher. The link opens [ChatGPT Settings → Usage](<https://chatgpt.com/settings/usage>) in a new tab. The collapsed sidebar uses a compact **GPT** link with an accessible label.
+A connected account adds **Using ChatGPT plan** and **View usage** above the existing DeepSeek account launcher. The link opens [ChatGPT Settings → Usage](<https://chatgpt.com/settings/usage>) in a new tab. It matches the native launcher geometry: a 44px row, 24px glyph, 14px label and the shared hover and radius tokens. Its own footer row comes from scoping `flex-wrap` to the slot's `display: contents` parent rather than to shell class names, so the notice wraps correctly whether or not any other footer action is installed. The collapsed sidebar replaces the copy with the same glyph in a 36×36 control that keeps an accessible label.
 
 The notice shares the Models panel's connection state. It is hidden while disconnected or loading; a session requiring renewed authorization instead shows **ChatGPT reconnection required** and **Reconnect in Models**. It does not indicate that the currently selected model uses ChatGPT, display estimated remaining quota, or query internal usage endpoints. The detailed usage notice remains in Models. The Models header states **Using ChatGPT plan** while the session is connected and keeps the sign-in invitation otherwise.
 
