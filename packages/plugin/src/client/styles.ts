@@ -1,17 +1,21 @@
 export const styles = `
-/* Keep this additive footer contribution on its own row, including in the rail.
-   Scope wrapping to the notice's immediate slot container, never shell class names. */
-div:has(> .chatgpt-plan-sidebar) { flex-wrap: wrap; }
-.chatgpt-plan-sidebar { flex: 1 0 100%; min-width: 0; box-sizing: border-box; padding: 10px 12px; color: var(--dsw-alias-label-secondary); font-size: 12px; line-height: 1.5; }
+/* The slot adds a display:contents wrapper: wrap its flex parent, not the wrapper.
+   Match the native settings/account launcher spacing, typography and hover tokens. */
+div:has(> div > .chatgpt-plan-sidebar) { flex-wrap: wrap; }
+.chatgpt-plan-sidebar { display: flex; align-items: center; gap: 8px; flex: 1 0 100%; min-width: 0; box-sizing: border-box; min-height: 44px; padding: 6px; border: 0; border-radius: var(--dsw-radius-md); background: transparent; color: var(--dsw-alias-label-primary); font-family: inherit; font-size: 14px; line-height: 22px; }
 .chatgpt-plan-sidebar p { margin: 0; }
-.chatgpt-plan-sidebar-label { color: var(--dsw-alias-label-primary); overflow-wrap: anywhere; }
-.chatgpt-plan-sidebar[data-reconnect="true"] .chatgpt-plan-sidebar-label { color: var(--dsw-alias-state-warn-primary); }
-.chatgpt-plan-sidebar a { color: var(--dsw-alias-label-secondary); text-decoration: underline; text-underline-offset: 3px; }
-.chatgpt-plan-sidebar a:hover { color: var(--dsw-alias-label-primary); }
-.chatgpt-plan-sidebar a:focus-visible { outline: 2px solid var(--dsw-alias-brand-primary); outline-offset: 3px; border-radius: 3px; }
-.chatgpt-plan-sidebar[data-wide="false"] { display: flex; justify-content: center; padding: 6px 0; }
-.chatgpt-plan-sidebar-compact { display: inline-flex; align-items: center; justify-content: center; width: 32px; min-height: 32px; border: 1px solid var(--dsw-alias-border-l1); border-radius: 8px; font-size: 10px; }
-.chatgpt-plan-sidebar[data-reconnect="true"] .chatgpt-plan-sidebar-compact { color: var(--dsw-alias-state-warn-primary); }
+.chatgpt-plan-sidebar-icon { display: inline-flex; align-items: center; justify-content: center; flex: none; width: 24px; height: 24px; }
+.chatgpt-plan-sidebar-copy { min-width: 0; }
+.chatgpt-plan-sidebar-label { overflow-wrap: anywhere; }
+.chatgpt-plan-sidebar-hint, .chatgpt-plan-sidebar-usage { color: var(--dsw-alias-label-secondary); font-size: 12px; line-height: 18px; }
+.chatgpt-plan-sidebar[data-reconnect="true"] .chatgpt-plan-sidebar-icon, .chatgpt-plan-sidebar[data-reconnect="true"] .chatgpt-plan-sidebar-label { color: var(--dsw-alias-state-warn-primary); }
+.chatgpt-plan-sidebar a { color: inherit; text-decoration: none; }
+.chatgpt-plan-sidebar a.chatgpt-plan-sidebar-usage { color: var(--dsw-alias-label-secondary); }
+.chatgpt-plan-sidebar[data-wide="true"]:has(a:hover), .chatgpt-plan-sidebar-compact[href]:hover { background: var(--dsw-alias-interactive-bg-hover); }
+.chatgpt-plan-sidebar-usage:hover { text-decoration: underline; text-underline-offset: 3px; }
+.chatgpt-plan-sidebar a:focus-visible { outline: var(--dsw-focus-ring-width, 2px) solid var(--dsw-focus-ring-color, var(--dsw-alias-brand-primary)); outline-offset: 2px; border-radius: var(--dsw-radius-sm); }
+.chatgpt-plan-sidebar[data-wide="false"] { justify-content: center; gap: 0; min-height: 36px; padding: 0; }
+.chatgpt-plan-sidebar-compact { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border: 0; border-radius: var(--dsw-radius-md); }
 
 .chatgpt-plan-panel { border: 1px solid var(--border-color, #7775); border-radius: 12px; padding: 20px; margin: 20px 0; color: inherit; font: inherit; }
 .chatgpt-plan-panel header { display: flex; justify-content: space-between; align-items: start; gap: 16px; }
