@@ -45,10 +45,17 @@ function state(value: NonNullable<PanelState['status']>['state']): PanelState {
 test('sidebar styles wrap the flex parent around the display-contents slot and match native geometry', () => {
   assert.ok(styles.includes('div:has(> div > .chatgpt-plan-sidebar) { flex-wrap: wrap; }'));
   assert.ok(!styles.includes('div:has(> .chatgpt-plan-sidebar)'));
-  assert.match(styles, /\.chatgpt-plan-sidebar \{[^}]*gap: 8px;[^}]*min-height: 44px;[^}]*padding: 6px;[^}]*font-size: 14px;/);
+  assert.match(styles, /\.chatgpt-plan-sidebar \{[^}]*position: relative;[^}]*gap: 8px;[^}]*min-height: 44px;[^}]*padding: 6px;[^}]*font-size: 14px;/);
   assert.match(styles, /\.chatgpt-plan-sidebar-icon \{[^}]*width: 24px; height: 24px;/);
   assert.match(styles, /\.chatgpt-plan-sidebar-compact \{[^}]*width: 36px; height: 36px; border: 0;/);
-  assert.ok(styles.includes('background: var(--dsw-alias-interactive-bg-hover)'));
+  assert.ok(styles.includes('.chatgpt-plan-sidebar:has(a:hover) { background: var(--dsw-alias-interactive-bg-hover, var(--dsw-alias-bg-layer-2)); }'));
+});
+
+test('the usage link is the whole-row pointer, hover and focus target', () => {
+  assert.ok(styles.includes('.chatgpt-plan-sidebar:has(a) { cursor: pointer; }'));
+  assert.ok(styles.includes(".chatgpt-plan-sidebar a::after { content: ''; position: absolute; inset: 0; }"));
+  assert.ok(styles.includes('.chatgpt-plan-sidebar:has(a:focus-visible) { outline: 2px solid var(--dsw-alias-brand-primary); outline-offset: -2px; }'));
+  assert.ok(styles.includes('.chatgpt-plan-sidebar a:focus-visible { outline: none; }'));
 });
 
 for (const wide of [true, false]) {
