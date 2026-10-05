@@ -2,6 +2,10 @@
 
 The browser bundle includes Zod 4.6.5 for the generated RPC codec. The package also includes a model metadata snapshot generated from the Pi catalog service. Their notices are reproduced below. Other runtime dependencies remain external packages and carry their own notices.
 
+## ChatGPT logo
+
+The sidebar includes a ChatGPT SVG mark supplied by the maintainer as `ChatGPT-Logo.svg`, embedded in the Client bundle without changing its path geometry. Its upstream download source has not been independently verified. The OpenAI and ChatGPT names and marks belong to OpenAI; this mark is not covered by this project's MIT license. It identifies the connected service and does not imply sponsorship or endorsement. See [OpenAI's brand guidelines](<https://openai.com/brand/>) for applicable usage terms.
+
 ## Zod
 
 MIT License

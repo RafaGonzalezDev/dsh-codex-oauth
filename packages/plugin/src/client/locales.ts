@@ -1,6 +1,6 @@
 export const en = {
   title: 'ChatGPT Plan',
-  sidebarConnected: 'Using ChatGPT plan', sidebarUsage: 'View usage',
+  sidebarConnected: 'Using ChatGPT plan', sidebarUsage: 'View usage', sidebarNewTab: 'Opens in a new tab',
   sidebarReconnect: 'ChatGPT reconnection required', sidebarReconnectHint: 'Reconnect in Models',
   subtitle: 'Use your ChatGPT plan in DeepSeek Harness.',
   subtitleConnected: 'Using ChatGPT plan',

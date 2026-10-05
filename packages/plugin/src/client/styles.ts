@@ -2,24 +2,20 @@ export const styles = `
 /* The slot adds a display:contents wrapper: wrap its flex parent, not the wrapper.
    Match the native settings/account launcher spacing, typography and hover tokens. */
 div:has(> div > .chatgpt-plan-sidebar) { flex-wrap: wrap; }
-.chatgpt-plan-sidebar { position: relative; display: flex; align-items: center; gap: 8px; flex: 1 0 100%; min-width: 0; box-sizing: border-box; min-height: 44px; padding: 6px; border: 0; border-radius: var(--dsw-radius-md); background: transparent; color: var(--dsw-alias-label-primary); font-family: inherit; font-size: 14px; line-height: 22px; }
+.chatgpt-plan-sidebar { position: relative; display: flex; align-items: center; gap: 8px; flex: 1 0 100%; min-width: 0; box-sizing: border-box; height: 44px; min-height: 44px; padding: 6px; border: 0; border-radius: var(--dsw-radius-md); background: transparent; color: var(--dsw-alias-label-primary); font-family: inherit; font-size: 14px; line-height: 22px; }
 .chatgpt-plan-sidebar p { margin: 0; }
 .chatgpt-plan-sidebar-icon { display: inline-flex; align-items: center; justify-content: center; flex: none; width: 24px; height: 24px; }
-.chatgpt-plan-sidebar-copy { min-width: 0; }
-.chatgpt-plan-sidebar-label { overflow-wrap: anywhere; }
-.chatgpt-plan-sidebar-hint, .chatgpt-plan-sidebar-usage { color: var(--dsw-alias-label-secondary); font-size: 12px; line-height: 18px; }
+.chatgpt-plan-sidebar-label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .chatgpt-plan-sidebar[data-reconnect="true"] .chatgpt-plan-sidebar-icon, .chatgpt-plan-sidebar[data-reconnect="true"] .chatgpt-plan-sidebar-label { color: var(--dsw-alias-state-warn-primary); }
 .chatgpt-plan-sidebar a { color: inherit; text-decoration: none; }
-.chatgpt-plan-sidebar a.chatgpt-plan-sidebar-usage { color: var(--dsw-alias-label-secondary); }
 /* The usage link covers the whole notice: one pointer target for the footer row,
    matching the model-usage sidebar button. */
 .chatgpt-plan-sidebar:has(a) { cursor: pointer; }
 .chatgpt-plan-sidebar a::after { content: ''; position: absolute; inset: 0; }
 .chatgpt-plan-sidebar:has(a:hover) { background: var(--dsw-alias-interactive-bg-hover, var(--dsw-alias-bg-layer-2)); }
-.chatgpt-plan-sidebar-usage:hover { text-decoration: underline; text-underline-offset: 3px; }
 .chatgpt-plan-sidebar:has(a:focus-visible) { outline: 2px solid var(--dsw-alias-brand-primary); outline-offset: -2px; }
 .chatgpt-plan-sidebar a:focus-visible { outline: none; }
-.chatgpt-plan-sidebar[data-wide="false"] { justify-content: center; gap: 0; min-height: 36px; padding: 0; }
+.chatgpt-plan-sidebar[data-wide="false"] { justify-content: center; gap: 0; height: 36px; min-height: 36px; padding: 0; }
 .chatgpt-plan-sidebar-compact { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border: 0; border-radius: var(--dsw-radius-md); }
 
 .chatgpt-plan-panel { border: 1px solid var(--border-color, #7775); border-radius: 12px; padding: 20px; margin: 20px 0; color: inherit; font: inherit; }
