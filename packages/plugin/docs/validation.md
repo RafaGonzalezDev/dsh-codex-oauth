@@ -1,5 +1,11 @@
 # Validation
 
+## Sidebar height and supplied logo: 0.1.9-sidebar-height.1
+
+Windows Node 24.13.0: `npm run check` passed **154/154 tests**, with no failures, cancellations or skips. The focused sidebar suite passed **11/11 tests**, covering one visible line, fixed expanded/compact CSS geometry, ellipsis, complete accessible action/status text, safe usage navigation, whole-row pointer/hover/focus, reconnect and hidden states, and the decorative monochrome SVG at both icon sizes. The integrated SVG path was independently compared with the maintainer-supplied source and is identical.
+
+These are build and component/style assertions, not measured browser dimensions. Actual rendering, theme contrast, pointer hit testing, keyboard focus and independent-plugin visual checks in the installed GUI remain pending in the local deployment receipt. The native installed account-launcher CSS uses a 44px expanded control and a 36px collapsed control; model-usage already follows those sizes and was not changed. No OAuth, credential, catalog or inference behavior was modified.
+
 ## Experimental Pi catalog release: 0.1.5-pi-catalog.2
 
 Scope: `feature/pi-model-catalog`, Windows Node 24.21.0. Catalog, cache and snapshot work recorded on 2026-10-01; the presentation-order change and its revalidation recorded on 2026-10-02 (Europe/Madrid). `main` and the installed DSH core are not changed by source implementation. Historical results below are not evidence that the catalog release has passed live validation.
