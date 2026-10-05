@@ -64,7 +64,7 @@ The commands above emit `dsh-chatgpt-plan-<version>.tgz` in the repository root.
 dsh plugin --profile web add /absolute/path/dsh-chatgpt-plan-0.1.9-sidebar-height.1.tgz
 ```
 
-After installing, run the application's **restartHost** action and reload the existing UI. Source edits alone never change an installed profile. For a new custom Web profile, initialize it from the shipped Web template first; see the [plugin guide](<packages/plugin/README.md>).
+After installing, run the application's **restartHost** action and reload the existing UI. Source edits alone never change an installed profile. For a new custom Web profile, initialize it from the shipped Web template first; see the [plugin guide](<packages/plugin/README.md>). For an agent-driven or unattended install, follow the [agent installation runbook](<docs/agent-install.md>).
 
 ## Usage
 
@@ -131,6 +131,7 @@ The catalog, native-selector and live `gpt-6.1-sol` evidence belongs to the `0.1
 | [Diagnostics](<packages/plugin/docs/troubleshooting.md>) | Symptom-to-action tables for catalog, installation and authorization. |
 | [Validation](<packages/plugin/docs/validation.md>) | Version-scoped build, test and platform evidence. |
 | [Development guide](<docs/development.md>) | Repository layout, release procedure and compatibility policy. |
+| [Agent installation](<docs/agent-install.md>) | Runbook for installing, configuring, verifying and rolling back the plugin from a terminal or desktop agent. |
 | [ADR-0001](<docs/adr/ADR-0001-use-pi-model-catalog.md>) | Decision to use the Pi catalog as the single metadata source. |
 
 ## License
