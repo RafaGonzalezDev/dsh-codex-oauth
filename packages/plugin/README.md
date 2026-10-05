@@ -2,9 +2,9 @@
 
 Connect a ChatGPT account to DeepSeek Harness through OpenAI's **Sign in with ChatGPT** plan-sharing preview. Inference uses the official Responses API directly at `api.openai.com` and the granted ChatGPT plan usage permission. This provider has no API-key configuration or alternative API-billing fallback.
 
-**Experimental version: `0.1.5-pi-catalog.2`.** Pi supplies model metadata only; it does not handle OAuth, credentials, inference or billing. See [models and restrictions](<docs/models.md>).
+**Experimental version: `0.1.9-sidebar-height.1`.** Pi supplies model metadata only; it does not handle OAuth, credentials, inference or billing. See [models and restrictions](<docs/models.md>).
 
-Declared Harness compatibility: **`>=0.2.0-rc.2 <0.3.0-0`**. Historical tested baseline: **0.2.0-rc.2**, Node **24**, macOS Desktop and a local Web host with plugin **0.1.2**. This does not validate the experimental catalog release. The package is independent of DeepSeek, OpenAI and Pi. License: MIT.
+Declared Harness compatibility: **`>=0.2.0-rc.2 <0.3.0-0`**. Historical tested baselines: **0.2.0-rc.2**, Node **24**, macOS Desktop and a local Web host with plugin **0.1.2**, and Windows Desktop with the `0.1.5-pi-catalog` series. The package is independent of DeepSeek, OpenAI and Pi. License: MIT.
 
 All DSH runtime peer dependencies and the informational `engines.dsh` field use this bounded range. DSH includes prereleases when checking peers, so the `-0` upper bound deliberately excludes every `0.3.0` prerelease as well as the stable release. Development dependencies remain pinned to `0.2.0-rc.2` for reproducible builds. This range permits loading later `0.2` releases; it does not certify untested API or UI compatibility. Validate each new Harness release before relying on it, especially release candidates. No version exemptions are required or installed.
 
@@ -23,34 +23,34 @@ Build and test the experimental package first, and install the **same tarball** 
 Use the global CLI bundled with the installed Windows application, not a checkout launcher:
 
 ```powershell
-& "$env:LOCALAPPDATA\Programs\DeepSeek Harness\resources\runtime\cli\bin\dsh.cmd" plugin --profile desktop add "C:\path\to\dsh-chatgpt-plan-0.1.5-pi-catalog.2.tgz"
+& "$env:LOCALAPPDATA\Programs\DeepSeek Harness\resources\runtime\cli\bin\dsh.cmd" plugin --profile desktop add "C:\path\to\dsh-chatgpt-plan-0.1.9-sidebar-height.1.tgz"
 ```
 
-The experimental rollout starts from `0.1.4` in the real `~/.dsh/profiles/desktop` profile. After installation, use the application's **restartHost** action and refresh the existing UI at `http://127.0.0.1:19387`. Do not start a replacement server. The generated Remote registry is discovered at startup; package changes are not guaranteed to hot-reload. This procedure does not modify ASAR/core files or a Pi/WSL installation.
+Install into the real `~/.dsh/profiles/desktop` profile, keeping the previously installed tarball as the rollback artifact. After installation, use the application's **restartHost** action and refresh the existing UI at `http://127.0.0.1:19387`. Do not start a replacement server. The generated Remote registry is discovered at startup; package changes are not guaranteed to hot-reload. This procedure does not modify ASAR/core files or a Pi/WSL installation.
 
-**Validated platform coverage for `0.1.5-pi-catalog.2` is Windows Desktop only.** Installation through the bundled CLI, native loading, the remote and cache catalog path, the selection order and a live `gpt-6.1-sol` request are recorded in the [validation evidence](<docs/validation.md>) and the deployment receipt.
+**Validated platform coverage for `0.1.9-sidebar-height.1` is Windows Desktop only.** Installation through the bundled CLI into the real `desktop` profile succeeded and the installed Client bundle matches the repository build. This release changes only the sidebar presentation: the build and component tests cover one visible line, the fixed expanded and compact geometry, ellipsis, the complete accessible action/status text and safe usage navigation, while live browser rendering, theme contrast, pointer hit testing and keyboard focus remain pending in the local deployment receipt. The catalog, native-selector and live `gpt-6.1-sol` evidence belongs to the `0.1.5-pi-catalog` series recorded in the [validation evidence](<docs/validation.md>).
 
-**macOS Desktop and Linux/Web have not been executed for this release.** The `0.1.2` baseline was validated on macOS, and the package is platform-neutral — prebuilt JavaScript, pure-JavaScript dependencies, no `os`/`cpu` restriction, no native module and no platform-specific branch — but that is a static property, not a runtime result. Validate installation, sign-in, the catalog and inference on the target platform before relying on them. Rollback is the retained `0.1.4` tarball.
+**macOS Desktop and Linux/Web have not been executed for this release.** The `0.1.2` baseline was validated on macOS, and the package is platform-neutral — prebuilt JavaScript, pure-JavaScript dependencies, no `os`/`cpu` restriction, no native module and no platform-specific branch — but that is a static property, not a runtime result. Validate installation, sign-in, the catalog and inference on the target platform before relying on them. Rollback is the retained `0.1.8-sidebar-target.1` tarball.
 
 ### macOS Desktop and local Web
 
 Use the CLI bundled with the installed application when managing macOS Desktop:
 
 ```sh
-"/Applications/DeepSeek Harness.app/Contents/Resources/runtime/cli/bin/dsh" plugin --profile desktop add /absolute/path/dsh-chatgpt-plan-0.1.5-pi-catalog.2.tgz
+"/Applications/DeepSeek Harness.app/Contents/Resources/runtime/cli/bin/dsh" plugin --profile desktop add /absolute/path/dsh-chatgpt-plan-0.1.9-sidebar-height.1.tgz
 ```
 
 For a local Web profile on Linux/macOS, select that profile explicitly:
 
 ```sh
-dsh plugin --profile web add /absolute/path/dsh-chatgpt-plan-0.1.5-pi-catalog.2.tgz
+dsh plugin --profile web add /absolute/path/dsh-chatgpt-plan-0.1.9-sidebar-height.1.tgz
 ```
 
 For a **new, separate** custom Web profile, initialize it from the shipped Web template before adding the plugin:
 
 ```sh
 dsh --profile my-web --from-default-profile web --dump-config
-dsh plugin --profile my-web add /absolute/path/dsh-chatgpt-plan-0.1.5-pi-catalog.2.tgz
+dsh plugin --profile my-web add /absolute/path/dsh-chatgpt-plan-0.1.9-sidebar-height.1.tgz
 dsh --profile my-web --no-open --port 41873
 ```
 
@@ -60,7 +60,7 @@ Restart the relevant Harness host and reload its UI after installation. Installa
 
 ### Rollback
 
-Reinstall the retained `0.1.4` tarball through the same bundled CLI and `desktop` profile, then use **restartHost** and refresh the same UI. Keep both tested artifacts and their digests. Do not delete the native credential store, patch core packages or copy dependencies between profiles as a rollback method. The Pi cache is separate from OAuth credentials.
+Reinstall the retained `0.1.8-sidebar-target.1` tarball through the same bundled CLI and `desktop` profile, then use **restartHost** and refresh the same UI. Keep both tested artifacts and their digests. Do not delete the native credential store, patch core packages or copy dependencies between profiles as a rollback method. The Pi cache is separate from OAuth credentials.
 
 ## Models and connection
 

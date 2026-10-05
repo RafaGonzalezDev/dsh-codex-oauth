@@ -5,7 +5,7 @@ A native **DeepSeek Harness** plugin that connects a ChatGPT plan account throug
 | | |
 | --- | --- |
 | Package | `dsh-chatgpt-plan` (this source repository is `dsh-codex-oauth`) |
-| Version | `0.1.5-pi-catalog.2` — experimental |
+| Version | `0.1.9-sidebar-height.1` — experimental |
 | Harness compatibility | `>=0.2.0-rc.2 <0.3.0-0` |
 | License | MIT |
 
@@ -54,14 +54,14 @@ The commands above emit `dsh-chatgpt-plan-<version>.tgz` in the repository root.
 **Windows Desktop**
 
 ```powershell
-& "$env:LOCALAPPDATA\Programs\DeepSeek Harness\resources\runtime\cli\bin\dsh.cmd" plugin --profile desktop add "C:\path\to\dsh-chatgpt-plan-0.1.5-pi-catalog.2.tgz"
+& "$env:LOCALAPPDATA\Programs\DeepSeek Harness\resources\runtime\cli\bin\dsh.cmd" plugin --profile desktop add "C:\path\to\dsh-chatgpt-plan-0.1.9-sidebar-height.1.tgz"
 ```
 
 **macOS Desktop and local Web**
 
 ```sh
-"/Applications/DeepSeek Harness.app/Contents/Resources/runtime/cli/bin/dsh" plugin --profile desktop add /absolute/path/dsh-chatgpt-plan-0.1.5-pi-catalog.2.tgz
-dsh plugin --profile web add /absolute/path/dsh-chatgpt-plan-0.1.5-pi-catalog.2.tgz
+"/Applications/DeepSeek Harness.app/Contents/Resources/runtime/cli/bin/dsh" plugin --profile desktop add /absolute/path/dsh-chatgpt-plan-0.1.9-sidebar-height.1.tgz
+dsh plugin --profile web add /absolute/path/dsh-chatgpt-plan-0.1.9-sidebar-height.1.tgz
 ```
 
 After installing, run the application's **restartHost** action and reload the existing UI. Source edits alone never change an installed profile. For a new custom Web profile, initialize it from the shipped Web template first; see the [plugin guide](<packages/plugin/README.md>).
@@ -115,9 +115,11 @@ Maintainers regenerate the bundled catalog snapshot from the same Pi service wit
 
 Runtime peer dependencies and the informational `engines.dsh` field declare `>=0.2.0-rc.2 <0.3.0-0`. The `-0` upper bound deliberately excludes every `0.3.0` prerelease. A permissive admission result is not an API compatibility guarantee; validate each new Harness release before relying on it.
 
-The automated suite and static types pass on Node 24, and the experimental release is validated end to end on **Windows Desktop**: installation through the bundled CLI, native loading, the remote and cache catalog paths, the Models panel, the native selector and a live `gpt-6.1-sol` request. **macOS Desktop and Linux/Web have not been executed for this release.** The package is platform-neutral — prebuilt JavaScript, pure-JavaScript dependencies, no `os`/`cpu` restriction and no native module — but that is a static property, not a runtime result.
+This release, `0.1.9-sidebar-height.1`, changes only the sidebar presentation: one visible status line, a fixed expanded height matching the native account launcher, ellipsis and the embedded ChatGPT mark. Host behavior, credentials, transport, catalog and inference are unchanged. The automated suite and static types pass on Node 24 (**154/154**, plus **11/11** in the focused sidebar suite). Installation into the real `desktop` profile through the bundled CLI succeeded, and the installed Client bundle matches the repository build.
 
-Automated fixtures, catalog HTTP checks, installation and live inference are recorded separately in the [validation evidence](<packages/plugin/docs/validation.md>).
+**Windows Desktop is the only platform executed for this release; macOS Desktop and Linux/Web have not been executed.** The package is platform-neutral — prebuilt JavaScript, pure-JavaScript dependencies, no `os`/`cpu` restriction and no native module — but that is a static property, not a runtime result. Live browser rendering, theme contrast, pointer hit testing and keyboard focus in the installed GUI remain pending in the local deployment receipt.
+
+The catalog, native-selector and live `gpt-6.1-sol` evidence belongs to the `0.1.5-pi-catalog` series and was not re-executed for this presentation release. Automated fixtures, catalog HTTP checks, installation and live inference are recorded separately in the [validation evidence](<packages/plugin/docs/validation.md>).
 
 ## Documentation
 

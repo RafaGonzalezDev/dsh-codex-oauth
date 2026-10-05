@@ -9,7 +9,7 @@ The ChatGPT Plan plugin used an OAuth account `/v1/models` list with a small rev
 
 We need current human-readable names and exact request identifiers without a hand-maintained model list, a Pi runtime dependency or an update of the whole plugin for each new model. The plugin must retain direct OAuth Responses requests to `api.openai.com`, existing scopes/native credentials, native Harness model/tool interfaces and explicit provider errors. It must not adopt Codex transport, imported pricing, API keys or automatic model substitution.
 
-The experimental implementation is isolated as `0.1.5-pi-catalog.2` on `feature/pi-model-catalog`. The `main` branch, DSH ASAR/core and Pi/WSL installation are outside the change.
+The implementation was isolated as `0.1.5-pi-catalog.2` on `feature/pi-model-catalog` while this decision was evaluated; it was later merged into `main` as `3e55d72` (PR #1), where the released line continues. DSH ASAR/core and any Pi/WSL installation remain outside the change.
 
 ## Alternatives considered
 
@@ -60,7 +60,7 @@ Publish token-free source, revision, loaded-from state, check/update timestamps 
 
 **Risks**: A service outage, oversized/malformed response or schema change may prevent updates. Bounded requests, atomic validated replacement, ETag/cache reuse, a bundled snapshot and visible warnings limit the effect. A valid but incorrect capability value can still affect selection/context budgeting; monitor the active revision and verify changes with fixtures and actual provider behavior. Do not report successful live inference based only on metadata or mocks.
 
-Release validation must separately record automated tests, catalog HTTP checks, the exact packaged artifact, installation/Host/UI loading and live inference. Install the same tested tarball through the global Windows bundled CLI, retain the previous `0.1.4` artifact for rollback, use **restartHost** and refresh the same `http://127.0.0.1:19387` UI. No core patch, new server or HMR assumption is part of this decision.
+Release validation must separately record automated tests, catalog HTTP checks, the exact packaged artifact, installation/Host/UI loading and live inference. Install the same tested tarball through the global Windows bundled CLI, retain the previously installed artifact for rollback, use **restartHost** and refresh the same `http://127.0.0.1:19387` UI. No core patch, new server or HMR assumption is part of this decision.
 
 ## Related documentation
 

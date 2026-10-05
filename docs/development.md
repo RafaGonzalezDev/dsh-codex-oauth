@@ -2,9 +2,11 @@
 
 This repository was initialized from the clean dsh-chatgpt-plan 0.1.2 source archive. The stable repository directory is `dsh-codex-oauth`; the npm package remains `dsh-chatgpt-plan` so installation and generated RPC identifiers remain compatible. No plugin behavior was changed during the original repository preparation.
 
-## Experimental worktree
+## Release lines and branches
 
-Develop **`0.1.5-pi-catalog.2`** on `feature/pi-model-catalog` in your local checkout. Keep `main` unchanged and push only that branch. No installed DSH ASAR/core or Pi/WSL files are part of this change.
+The Pi catalog work described in [ADR-0001](<adr/ADR-0001-use-pi-model-catalog.md>) was developed on `feature/pi-model-catalog`, merged into `main` as `3e55d72` (PR #1) and released as `0.1.5-pi-catalog.2`. Only `main` exists now, and the later releases — including the current `0.1.9-sidebar-height.1` — are prepared and version-bumped on `main`.
+
+Isolate a change on a branch only when it must stay out of the released line, and state the target branch and version range before starting. No installed DSH ASAR/core or Pi/WSL files are part of these changes.
 
 Pi is the single model metadata source. OAuth, native credentials, direct OpenAI Responses inference and native Harness interfaces remain separate. See [ADR-0001](<adr/ADR-0001-use-pi-model-catalog.md>) for the decision and rejected alternatives.
 
@@ -48,15 +50,15 @@ The Host bounds each catalog fetch to 4 seconds, 2 MiB and 1,000 records. Runtim
 
 ## Windows deployment and rollback
 
-The initial target is the real `~/.dsh/profiles/desktop` profile with plugin `0.1.4`. After complete checks and packaging, install the **same experimental tarball** through the Windows global bundled CLI:
+The target is the real `~/.dsh/profiles/desktop` profile. After complete checks and packaging, install the **same versioned tarball** emitted in the repository root through the Windows global bundled CLI:
 
 ```powershell
-& "$env:LOCALAPPDATA\Programs\DeepSeek Harness\resources\runtime\cli\bin\dsh.cmd" plugin --profile desktop add "C:\path\to\dsh-chatgpt-plan-0.1.5-pi-catalog.2.tgz"
+& "$env:LOCALAPPDATA\Programs\DeepSeek Harness\resources\runtime\cli\bin\dsh.cmd" plugin --profile desktop add "C:\path\to\dsh-chatgpt-plan-<version>.tgz"
 ```
 
-Use **restartHost**, then refresh the existing `http://127.0.0.1:19387` UI. Do not launch a replacement server, promise HMR or patch the installed application. Check the source badge, exact human names/IDs, empty/fallback feedback and native selector; then obtain distinct live-inference evidence if a real request is authorized.
+Use **restartHost**, then refresh the existing `http://127.0.0.1:19387` UI. Do not launch a replacement server, promise HMR or patch the installed application. Check the surface the release actually changes — for the catalog work that means the source badge, the exact human names/IDs, empty and fallback feedback and the native selector — and obtain distinct live-inference evidence only if a real request is authorized.
 
-For rollback, reinstall the retained `0.1.4` tarball through the same CLI and profile, then restartHost and refresh the same URL. Preserve OAuth credentials and both artifacts/digests. A catalog rollback is not a reason to delete the native credential store. The upgrade ignores legacy model lists stored alongside an existing grant while preserving the grant itself.
+For rollback, reinstall the retained previous tarball through the same CLI and profile, then restartHost and refresh the same URL. Preserve OAuth credentials and both artifacts/digests. A rollback is not a reason to delete the native credential store. Legacy model lists stored alongside an existing grant are ignored on read while the grant itself is preserved.
 
 ## Release validation records
 
